@@ -8,7 +8,8 @@ Nous aimerions implémenter de la **génération procédurale** pour la créatio
 Les salles contiendraient donc des ennemis, des obstacles et des objets que nous comptons gérer avec un **système de tiles**.  
 ## Suivi
 ### Semaine 1  
--Ajout d'une structure et de fonctions pour la gestion d'entités
+-Ajout d'une structure et de fonctions pour la gestion d'entités.
+-Ajout d'une structure et de fonctions pour la gestion des tiles répresentant le background.
 
 ### Auteurs
 Jeannin Théo  
