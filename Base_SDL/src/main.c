@@ -7,6 +7,7 @@
 #define window_height 600
 #define nbwTiles 12
 #define nbhTiles 8
+#define nbTiles 1
 struct entity {
     SDL_Texture* sprite;
     SDL_Rect physic;
@@ -14,16 +15,10 @@ struct entity {
 
 typedef struct entity Entity;
 
-struct tile {
-    SDL_Texture* sprite;
-    int type;
-};
-
-typedef struct tile Tile;
-
 struct floor {
     int id;
-    Tile tiles[nbwTiles][nbhTiles];
+    int tiles[12][8];
+    SDL_Texture** tiles_sprites;
 };
 
 typedef struct floor Floor;
@@ -34,7 +29,6 @@ Entity* createEntity(SDL_Renderer* screen,const char *cheminSprite,int x,int y,i
 SDL_Point getSizeTexture(SDL_Texture *texture);
 void printEntity(SDL_Renderer* screen,Entity* entity);
 Floor* createEmptyFloor(SDL_Renderer* screen,int id);
-Tile createTile(SDL_Renderer* screen,int type);
 
 int main(int argc, char *argv[])
     {
@@ -132,24 +126,15 @@ void printEntity(SDL_Renderer* screen,Entity* entity){
     SDL_RenderCopy(screen,entity->sprite,NULL,&(entity->physic));
 }
 
-Tile createTile(SDL_Renderer* screen,int type){
-    Tile rTile;
-    switch(type){
-        case 1 :
-            rTile.sprite=createImage("ressources/images/floor_texture.png",screen);
-        break;
-    }
-    rTile.type=type;
-    return rTile;
-}
-
 Floor* createEmptyFloor(SDL_Renderer* screen,int id){
     Floor* rFloor=malloc(sizeof(Floor));
+    rFloor->tiles_sprites=malloc(sizeof(int)*nbTiles);
+    rFloor->tiles_sprites[0]=createImage("ressources/images/floor_texture.png",screen);
     int x = 0;
     int y = 0;
     for(x = 0;x<nbwTiles;x++){
         for(y = 0;y<nbhTiles;y++){
-            (rFloor->tiles)[x][y]=createTile(screen,1);
+            (rFloor->tiles)[x][y]=0;
         }
     }
     rFloor->id=id;
@@ -163,7 +148,7 @@ void printFloor(SDL_Renderer* screen,Floor* floor){
     for(x = 0;x<nbwTiles;x++){
         for(y = 0;y<nbhTiles;y++){
                     pos = makeRect(x*(window_width/nbwTiles),y*(window_height/nbhTiles),window_width/nbwTiles,window_height/nbhTiles);
-                    SDL_RenderCopy(screen,floor->tiles[x][y].sprite,NULL,&pos);
+                    SDL_RenderCopy(screen,floor->tiles_sprites[floor->tiles[x][y]],NULL,&pos);
         }
     }
 }
