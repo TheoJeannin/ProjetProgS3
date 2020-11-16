@@ -5,6 +5,8 @@
 #include <SDL2/SDL_image.h>
 #define window_width 600
 #define window_height 600
+#define nbwTiles 12
+#define nbhTiles 8
 struct entity {
     SDL_Texture* sprite;
     SDL_Rect physic;
@@ -12,11 +14,27 @@ struct entity {
 
 typedef struct entity Entity;
 
+struct tile {
+    SDL_Texture* sprite;
+    int type;
+};
+
+typedef struct tile Tile;
+
+struct floor {
+    int id;
+    Tile tiles[nbwTiles][nbhTiles];
+};
+
+typedef struct floor Floor;
+
 SDL_Rect makeRect(int x, int y,int w,int h);
 SDL_Texture* createImage(const char *cheminFichier,SDL_Renderer* screen);
 Entity* createEntity(SDL_Renderer* screen,const char *cheminSprite,int x,int y,int w,int h);
 SDL_Point getSizeTexture(SDL_Texture *texture);
 void printEntity(SDL_Renderer* screen,Entity* entity);
+Floor* createEmptyFloor(SDL_Renderer* screen,int id);
+Tile createTile(SDL_Renderer* screen,int type);
 
 int main(int argc, char *argv[])
     {
@@ -43,6 +61,9 @@ int main(int argc, char *argv[])
     }
     screen = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     //Initialisation Jeu
+    Floor* Salle = createEmptyFloor(screen,1);
+    printFloor(screen,Salle);
+    SDL_RenderPresent(screen);
     // Boucle principale
     while(!terminer){
         SDL_PollEvent( &evenements );
@@ -111,4 +132,39 @@ void printEntity(SDL_Renderer* screen,Entity* entity){
     SDL_RenderCopy(screen,entity->sprite,NULL,&(entity->physic));
 }
 
+Tile createTile(SDL_Renderer* screen,int type){
+    Tile rTile;
+    switch(type){
+        case 1 :
+            rTile.sprite=createImage("ressources/images/floor_texture.png",screen);
+        break;
+    }
+    rTile.type=type;
+    return rTile;
+}
+
+Floor* createEmptyFloor(SDL_Renderer* screen,int id){
+    Floor* rFloor=malloc(sizeof(Floor));
+    int x = 0;
+    int y = 0;
+    for(x = 0;x<nbwTiles;x++){
+        for(y = 0;y<nbhTiles;y++){
+            (rFloor->tiles)[x][y]=createTile(screen,1);
+        }
+    }
+    rFloor->id=id;
+    return rFloor;
+}
+
+void printFloor(SDL_Renderer* screen,Floor* floor){
+    int x = 0;
+    int y = 0;
+    SDL_Rect pos;
+    for(x = 0;x<nbwTiles;x++){
+        for(y = 0;y<nbhTiles;y++){
+                    pos = makeRect(x*(window_width/nbwTiles),y*(window_height/nbhTiles),window_width/nbwTiles,window_height/nbhTiles);
+                    SDL_RenderCopy(screen,floor->tiles[x][y].sprite,NULL,&pos);
+        }
+    }
+}
 
