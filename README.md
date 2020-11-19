@@ -14,7 +14,7 @@ Les salles contiendraient donc des ennemis, des obstacles et des objets que nous
 -Ajout d'une structure et de fonctions pour la gestion d'entités.  
 -Ajout d'une structure et de fonctions pour la gestion des tiles répresentant le background.
 ### Semaine 3
--Vérification de la compatibilité du code avec Linux/Ubuntu de la FST
+-Vérification de la compatibilité du code avec Linux/Ubuntu de la FST  
 -Création du makefile sous Linux
 
 ## Tableau d'organisation
