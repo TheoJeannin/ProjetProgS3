@@ -13,6 +13,9 @@ Les salles contiendraient donc des ennemis, des obstacles et des objets que nous
 ### Semaine 2 
 -Ajout d'une structure et de fonctions pour la gestion d'entités.  
 -Ajout d'une structure et de fonctions pour la gestion des tiles répresentant le background.
+### Semaine 3
+-Vérification de la compatibilité du code avec Linux/Ubuntu de la FST
+-Création du makefile sous Linux
 
 ## Tableau d'organisation
 https://trello.com/b/wG0z8xdt
