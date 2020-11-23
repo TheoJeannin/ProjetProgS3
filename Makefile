@@ -9,6 +9,7 @@ EXEC = main
 SRC = src/main.c
 OBJ = $(SRC:.c=.o)
 
+
 all: $(EXEC)
 main: $(OBJ)
 	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $^ $(LIBS) $(LDFLAGS)
@@ -21,5 +22,3 @@ mrproper: clean
 doc: $(PROG)
 	doxygen ./$(PROG)
 	make -C latex
-push :
-	git push https://github.com/TheoJeannin/ProjetProgS3.git
