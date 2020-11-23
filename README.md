@@ -16,6 +16,9 @@ Les salles contiendraient donc des ennemis, des obstacles et des objets que nous
 ### Semaine 3
 -Vérification de la compatibilité du code avec Linux/Ubuntu de la FST  
 -Création du makefile sous Linux
+-Réglage de problèmes dans l'installation de la bibliothéque ttf
+-Formation sur la gestion des collisions avec la sdl(Le code n'est pas encore fonctionnel)
+
 
 ## Tableau d'organisation
 https://trello.com/b/wG0z8xdt
