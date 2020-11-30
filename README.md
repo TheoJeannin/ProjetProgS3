@@ -19,7 +19,7 @@ Les salles contiendraient donc des ennemis, des obstacles et des objets que nous
 -Réglage de problèmes dans l'installation de la bibliothéque ttf  
 -Formation sur la gestion des collisions avec la sdl(Le code n'est pas encore fonctionnel)
 
-### Semaine 3
+### Semaine 4
 -Ajout de la gestion du mouvement des entités  
 -Ajout de la gestion du mouvement du joueur  
 -Ajout de modularité dans l'organisation du projet  
