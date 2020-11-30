@@ -8,6 +8,7 @@
 #define nbwTiles 12
 #define nbhTiles 8
 #define nbTiles 1
+#define playerSpeed 10
 struct entity {
     SDL_Texture* sprite;
     SDL_Rect physic;
@@ -56,7 +57,9 @@ int main(int argc, char *argv[])
     screen = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     //Initialisation Jeu
     Floor* Salle = createEmptyFloor(screen,1);
+    Entity* Player = createEntity(screen,"ressources/images/base_sprite.png",50,50,50,50);
     printFloor(screen,Salle);
+    printEntity(screen,Player);
     SDL_RenderPresent(screen);
     // Boucle principale
     while(!terminer){
@@ -69,12 +72,26 @@ int main(int argc, char *argv[])
                 case SDL_KEYDOWN:
                     switch(evenements.key.keysym.sym)
                     {
-                        case SDLK_ESCAPE:
+                        case SDLK_z:
+                            movePlayer(Player,0,-playerSpeed);
+                        break;
                         case SDLK_q:
-                        terminer = true;
+                            movePlayer(Player,-playerSpeed,0);
+                        break;
+                        case SDLK_s:
+                            movePlayer(Player,0,playerSpeed);
+                        break;
+                        case SDLK_d:
+                            movePlayer(Player,playerSpeed,0);
+                        break;
+                        case SDLK_ESCAPE:
+                            terminer = true;
                         break;
                     }
             }
+        printFloor(screen,Salle);
+        printEntity(screen,Player);
+        SDL_RenderPresent(screen);
     }
     // Quitter SDL
     SDL_DestroyWindow(window);
@@ -150,6 +167,15 @@ void printFloor(SDL_Renderer* screen,Floor* floor){
                     pos = makeRect(x*(window_width/nbwTiles),y*(window_height/nbhTiles),window_width/nbwTiles,window_height/nbhTiles);
                     SDL_RenderCopy(screen,floor->tiles_sprites[floor->tiles[x][y]],NULL,&pos);
         }
+    }
+}
+
+void movePlayer(Entity* Player,int x,int y){
+    if(((Player->physic.x+x)>0)&&((Player->physic.x+x)<(window_width-Player->physic.w))){
+        Player->physic.x+=x;
+    }
+    if(((Player->physic.y+y)>0)&&((Player->physic.y+y)<(window_height-Player->physic.h))){
+        Player->physic.y+=y;
     }
 }
 
