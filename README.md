@@ -19,6 +19,13 @@ Les salles contiendraient donc des ennemis, des obstacles et des objets que nous
 -Réglage de problèmes dans l'installation de la bibliothéque ttf  
 -Formation sur la gestion des collisions avec la sdl(Le code n'est pas encore fonctionnel)
 
+### Semaine 3
+-Ajout de la gestion du mouvement des entités  
+-Ajout de la gestion du mouvement du joueur  
+-Ajout de modularité dans l'organisation du projet  
+-Le code sur la gestion des collisions nécessite encore du peaufinage  
+-Formation sur la mise en place de la génération procédurale  
+
 
 ## Tableau d'organisation
 https://trello.com/b/wG0z8xdt
