@@ -27,6 +27,13 @@ Les salles contiendraient donc des ennemis, des obstacles et des objets que nous
 -Le code sur la gestion des collisions nécessite encore du peaufinage  
 -Formation sur la mise en place de la génération procédurale  
 
+### Semaine 5  
+-Ajout de la gestion des obstacles au sein d'une salle  
+-Ajout de la collision du joueur avec les obstacles  
+-Ajout de la création des ennemies à l'aide d'une pile de donnée  
+-Ajout de l'affichage des ennemies  
+-Changement des sprites pour des sprites libres de droit  
+
 
 ## Tableau d'organisation
 https://trello.com/b/wG0z8xdt
