@@ -1,6 +1,6 @@
 ### Projet Programmation S3 - Dungeon Crawler 
 ## Prérequis
-SDL2
+SDL2  
 SDL2_image (bibliotèque non fournie dans SDL2 de base)
 
 ## Description
