@@ -34,6 +34,7 @@ Les salles contiendraient donc des ennemis, des obstacles et des objets que nous
 -Ajout de l'affichage des ennemies  
 -Changement des sprites pour des sprites libres de droit  
 -Recherche sur les moyens de sauvegarde de salle du jeu à l'aide d'un fichier  
+-Réécriture complète du Makefile pour la clareté et de la correction d'erreurs et ajout de SDL_image dedans
 
 
 ## Tableau d'organisation
