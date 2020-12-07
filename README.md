@@ -1,6 +1,7 @@
 ### Projet Programmation S3 - Dungeon Crawler 
 ## Prérequis
 SDL2
+SDL2_image (bibliotèque non fournie dans SDL2 de base)
 
 ## Description
 L'objectif du projet est de créer un **dungeon crawler 2D** avec une gestion de la caméra à la manière de Binding of Isaac(**Salle par salle**).  
