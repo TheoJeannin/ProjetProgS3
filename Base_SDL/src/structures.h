@@ -17,6 +17,20 @@ struct entity {
 };
 typedef struct entity Entity;
 
+typedef struct ennemie Ennemie;
+struct ennemie_list {
+    Ennemie* premier;
+};
+typedef struct ennemie_list Ennemie_List;
+
+struct ennemie{
+    Ennemie_List* suivant;
+    int type;
+    int health;
+    int speed;
+    int damage;
+    Entity e;
+};
 struct floor {
     int id;
     int tiles[nbwTiles][nbhTiles];
@@ -24,6 +38,7 @@ struct floor {
 };
 
 typedef struct floor Floor;
+
 
 
 

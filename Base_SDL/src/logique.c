@@ -48,7 +48,6 @@ void moveEntity(Entity* Entity,int floor[nbwTiles][nbhTiles],int x,int y){
     nextPos.y=Entity->physic.y+y;
     if(((nextPos.x)>0)&&((nextPos.x)<(window_width-Entity->physic.w))){
         if(((nextPos.y)>0)&&((nextPos.y)<(window_height-Entity->physic.h))){
-            SDL_Log("x : %d y : %d",((nextPos.x+(Entity->physic.w))/(window_width/nbwTiles)),((nextPos.y+(Entity->physic.h))/(window_height/nbhTiles)));
             if((floor[((nextPos.x)/(window_width/nbwTiles))][((nextPos.y)/(window_height/nbhTiles))]==0)&&
                ((floor[((nextPos.x+Entity->physic.w)/(window_width/nbwTiles))][((nextPos.y+Entity->physic.h)/(window_height/nbhTiles))]==0))&&
                ((floor[((nextPos.x)/(window_width/nbwTiles))][((nextPos.y+Entity->physic.h)/(window_height/nbhTiles))]==0))&&
@@ -59,6 +58,35 @@ void moveEntity(Entity* Entity,int floor[nbwTiles][nbhTiles],int x,int y){
             }
         }
     }
+}
+
+Ennemie_List* createList_Ennemie(){
+    Ennemie_List* liste = malloc(sizeof(Ennemie_List*));
+    if (liste == NULL)
+    {
+        exit(EXIT_FAILURE);
+    }
+    liste->premier=NULL;
+    return liste;
+}
+
+void ajouterList_Ennemie(Ennemie_List* liste,int type,int health,int speed,int damage,int x,int y,int w,int h, char* spriteL,SDL_Renderer* renderer){
+    Ennemie* nEnnemie = malloc(sizeof(Ennemie*));
+    if(nEnnemie==NULL)
+    {
+        exit(EXIT_FAILURE);
+    }
+    nEnnemie->suivant=liste;
+    nEnnemie->type=type;
+    nEnnemie->speed=speed;
+    nEnnemie->damage=damage;
+    nEnnemie->e.physic.x=x;
+    nEnnemie->e.physic.y=y;
+    nEnnemie->e.physic.w=w;
+    nEnnemie->e.physic.h=h;
+    nEnnemie->e.sprite=createImage(spriteL,renderer);
+    nEnnemie->suivant=liste->premier;
+    liste->premier=nEnnemie;
 }
 
 

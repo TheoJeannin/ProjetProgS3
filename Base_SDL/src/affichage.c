@@ -22,3 +22,11 @@ void printFloor(SDL_Renderer* screen,Floor* floor){
         }
     }
 }
+
+void printEnnemies(SDL_Renderer* screen,Ennemie_List* list){
+    Ennemie* cEnnemie=list->premier;
+    while(cEnnemie!=NULL){
+        printEntity(screen,&(cEnnemie->e));
+        cEnnemie=cEnnemie->suivant;
+    }
+}

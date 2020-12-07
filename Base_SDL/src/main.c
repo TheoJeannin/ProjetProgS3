@@ -33,10 +33,12 @@ int main(int argc, char *argv[])
     screen = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     //Initialisation Jeu
     Floor* Salle = createEmptyFloor(screen,1);
-    Entity* Player = createEntity(screen,"ressources/images/base_sprite.png",50,50,50,50);
-    printFloor(screen,Salle);
-    printEntity(screen,Player);
-    SDL_RenderPresent(screen);
+    Entity* Player = createEntity(screen,"ressources/images/player_idle.png",50,50,50,50);
+    Ennemie_List* ennemies = createList_Ennemie();
+    ajouterList_Ennemie(ennemies,1,10,10,5,100,100,50,50,"ressources/images/bat.png",screen);
+    ajouterList_Ennemie(ennemies,1,10,10,5,500,200,50,50,"ressources/images/bat.png",screen);
+    ajouterList_Ennemie(ennemies,1,10,10,5,400,200,50,50,"ressources/images/bat.png",screen);
+    ajouterList_Ennemie(ennemies,1,10,10,5,10,200,50,50,"ressources/images/bat.png",screen);
     // Boucle principale
     while(!terminer){
         SDL_PollEvent( &evenements );
@@ -67,6 +69,8 @@ int main(int argc, char *argv[])
             }
         printFloor(screen,Salle);
         printEntity(screen,Player);
+        //printEntity(screen,&Ennemies->premier->e);
+        printEnnemies(screen,ennemies);
         SDL_RenderPresent(screen);
     }
     // Quitter SDL
