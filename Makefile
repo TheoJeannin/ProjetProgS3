@@ -9,7 +9,7 @@ LIBS = -lSDL2 -lSDL2_image
 EXEC = main
 
 #Modifier les sources :
-SRC = Base_SDL/src/main.c Base_SDL/src/affichage.c Base_SDL/src/extensionsdl.c Base_SDL/src/logique.c
+SRC = Base_SDL/src/main.c Base_SDL/src/affichage.c Base_SDL/src/extensionsdl.c Base_SDL/src/logique.c Base_SDL/src/pile/pile.c
 OBJ = $(SRC:.c=.o)
 
 
