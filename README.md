@@ -33,6 +33,7 @@ Les salles contiendraient donc des ennemis, des obstacles et des objets que nous
 -Ajout de la création des ennemies à l'aide d'une pile de donnée  
 -Ajout de l'affichage des ennemies  
 -Changement des sprites pour des sprites libres de droit  
+-Recherche sur les moyens de sauvegarde de salle du jeu à l'aide d'un fichier  
 
 
 ## Tableau d'organisation
