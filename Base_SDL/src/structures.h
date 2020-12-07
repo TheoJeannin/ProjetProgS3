@@ -9,22 +9,22 @@
 #define window_height 600
 #define nbwTiles 12
 #define nbhTiles 8
-#define nbTiles 1
+#define nbTilesText 2
 #define playerSpeed 10
 struct entity {
     SDL_Texture* sprite;
     SDL_Rect physic;
 };
-
 typedef struct entity Entity;
 
 struct floor {
     int id;
-    int tiles[12][8];
+    int tiles[nbwTiles][nbhTiles];
     SDL_Texture** tiles_sprites;
 };
 
 typedef struct floor Floor;
+
 
 
 #endif // STRUCTURES_H_INCLUDED

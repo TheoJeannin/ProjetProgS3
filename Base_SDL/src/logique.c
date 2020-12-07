@@ -27,8 +27,9 @@ Entity* createEntity(SDL_Renderer* screen,const char *cheminSprite,int x,int y,i
 
 Floor* createEmptyFloor(SDL_Renderer* screen,int id){
     Floor* rFloor=malloc(sizeof(Floor));
-    rFloor->tiles_sprites=malloc(sizeof(int)*nbTiles);
-    rFloor->tiles_sprites[0]=createImage("ressources/images/floor_texture.png",screen);
+    rFloor->tiles_sprites=malloc(sizeof(int)*nbTilesText);
+    rFloor->tiles_sprites[0]=createImage("ressources/images/floor_texture.png",screen); //Chargement texture sol
+    rFloor->tiles_sprites[1]=createImage("ressources/images/floor_rock.png",screen); //Chargement texture rocher
     int x = 0;
     int y = 0;
     for(x = 0;x<nbwTiles;x++){
@@ -36,15 +37,28 @@ Floor* createEmptyFloor(SDL_Renderer* screen,int id){
             (rFloor->tiles)[x][y]=0;
         }
     }
+    (rFloor->tiles)[5][5]=1;
     rFloor->id=id;
     return rFloor;
 }
 
-void moveEntity(Entity* Entity,int x,int y){
-    if(((Entity->physic.x+x)>0)&&((Entity->physic.x+x)<(window_width-Entity->physic.w))){
-        Entity->physic.x+=x;
-    }
-    if(((Entity->physic.y+y)>0)&&((Entity->physic.y+y)<(window_height-Entity->physic.h))){
-        Entity->physic.y+=y;
+void moveEntity(Entity* Entity,int floor[nbwTiles][nbhTiles],int x,int y){
+    SDL_Rect nextPos;
+    nextPos.x=Entity->physic.x+x;
+    nextPos.y=Entity->physic.y+y;
+    if(((nextPos.x)>0)&&((nextPos.x)<(window_width-Entity->physic.w))){
+        if(((nextPos.y)>0)&&((nextPos.y)<(window_height-Entity->physic.h))){
+            SDL_Log("x : %d y : %d",((nextPos.x+(Entity->physic.w))/(window_width/nbwTiles)),((nextPos.y+(Entity->physic.h))/(window_height/nbhTiles)));
+            if((floor[((nextPos.x)/(window_width/nbwTiles))][((nextPos.y)/(window_height/nbhTiles))]==0)&&
+               ((floor[((nextPos.x+Entity->physic.w)/(window_width/nbwTiles))][((nextPos.y+Entity->physic.h)/(window_height/nbhTiles))]==0))&&
+               ((floor[((nextPos.x)/(window_width/nbwTiles))][((nextPos.y+Entity->physic.h)/(window_height/nbhTiles))]==0))&&
+               ((floor[((nextPos.x+Entity->physic.w)/(window_width/nbwTiles))][((nextPos.y)/(window_height/nbhTiles))]==0)))
+                {
+                Entity->physic.x+=x;
+                Entity->physic.y+=y;
+            }
+        }
     }
 }
+
+

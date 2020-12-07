@@ -49,16 +49,16 @@ int main(int argc, char *argv[])
                     switch(evenements.key.keysym.sym)
                     {
                         case SDLK_z:
-                            moveEntity(Player,0,-playerSpeed);
+                            moveEntity(Player,Salle->tiles,0,-playerSpeed);
                         break;
                         case SDLK_q:
-                            moveEntity(Player,-playerSpeed,0);
+                            moveEntity(Player,Salle->tiles,-playerSpeed,0);
                         break;
                         case SDLK_s:
-                            moveEntity(Player,0,playerSpeed);
+                            moveEntity(Player,Salle->tiles,0,playerSpeed);
                         break;
                         case SDLK_d:
-                            moveEntity(Player,playerSpeed,0);
+                            moveEntity(Player,Salle->tiles,playerSpeed,0);
                         break;
                         case SDLK_ESCAPE:
                             terminer = true;
