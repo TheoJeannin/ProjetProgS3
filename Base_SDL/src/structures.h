@@ -13,6 +13,7 @@
 #define playerSpeed 10
 #define floorSize 10
 
+
 struct entity {
     SDL_Texture* sprite;
     SDL_Rect physic;
@@ -33,6 +34,13 @@ struct ennemie{
     int damage;
     Entity e;
 };
+
+struct player{
+    SDL_Texture** sprites;
+    SDL_Rect physic;
+    int facing;
+};
+typedef struct player Player;
 
 typedef struct room Room;
 struct room {

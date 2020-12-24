@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     Floor* Etage=createEmptyFloor(screen,1);
     Room* Salle = createRightRooms(1,NULL,NULL,NULL,NULL);
     Etage->start=Salle;
-    Entity* Player = createEntity(screen,"ressources/images/player_idle.png",100,400,50,50);
+    Player* player = createPlayer(screen,100,400,50,50);
     Ennemie_List* ennemies = createList_Ennemie();
     ajouterList_Ennemie(ennemies,1,10,10,5,100,100,50,50,"ressources/images/bat.png",screen);
     ajouterList_Ennemie(ennemies,0,10,10,5,500,200,50,50,"ressources/images/bat.png",screen);
@@ -55,32 +55,36 @@ int main(int argc, char *argv[])
                     switch(evenements.key.keysym.sym)
                     {
                         case SDLK_z:
-                            moveEntity(Player,Salle->tiles,0,-playerSpeed);
+                            moveEntity(&(player->physic),Salle->tiles,0,-playerSpeed);
+                            player->facing=4;
                         break;
                         case SDLK_q:
-                            moveEntity(Player,Salle->tiles,-playerSpeed,0);
+                            moveEntity(&(player->physic),Salle->tiles,-playerSpeed,0);
+                            player->facing=2;
                         break;
                         case SDLK_s:
-                            moveEntity(Player,Salle->tiles,0,playerSpeed);
+                            moveEntity(&(player->physic),Salle->tiles,0,playerSpeed);
+                            player->facing=1;
                         break;
                         case SDLK_d:
-                            moveEntity(Player,Salle->tiles,playerSpeed,0);
+                            moveEntity(&(player->physic),Salle->tiles,playerSpeed,0);
+                            player->facing=3;
                         break;
                         case SDLK_ESCAPE:
                             terminer = true;
                         break;
                     }
             }
-        if((Player->physic.x)>=window_width-(Player->physic.w)-10){
-            Player->physic.x=1;
+        if((player->physic.x)>=window_width-(player->physic.w)-10){
+            player->physic.x=1;
             Salle=Salle->west;
         }
-        else if((Player->physic.x)<=0){
-            Player->physic.x=window_width-(Player->physic.w)-11;
+        else if((player->physic.x)<=0){
+            player->physic.x=window_width-(player->physic.w)-11;
             Salle=Salle->east;
         }
         printRoom(screen,Salle,Etage->tiles_sprites);
-        printEntity(screen,Player);
+        printPlayer(screen,player);
         //printEntity(screen,&Ennemies->premier->e);
         printEnnemies(screen,ennemies);
         SDL_RenderPresent(screen);

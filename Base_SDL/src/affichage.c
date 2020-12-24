@@ -30,3 +30,7 @@ void printEnnemies(SDL_Renderer* screen,Ennemie_List* list){
         cEnnemie=cEnnemie->suivant;
     }
 }
+
+void printPlayer(SDL_Renderer* screen,Player* player){
+    SDL_RenderCopy(screen,player->sprites[player->facing-1],NULL,&(player->physic));
+}
