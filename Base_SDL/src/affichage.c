@@ -10,7 +10,7 @@ void printEntity(SDL_Renderer* screen,Entity* entity){
     SDL_RenderCopy(screen,entity->sprite,NULL,&(entity->physic));
 }
 
-void printFloor(SDL_Renderer* screen,Floor* floor){
+void printRoom(SDL_Renderer* screen,Room* room,SDL_Texture** tiles_sprites){
     int x = 0;
     int y = 0;
     SDL_Rect pos;
@@ -18,7 +18,7 @@ void printFloor(SDL_Renderer* screen,Floor* floor){
         for(y = 0;y<nbhTiles;y++){
 
                     pos = makeRect(x*(window_width/nbwTiles),y*(window_height/nbhTiles),window_width/nbwTiles,window_height/nbhTiles);
-                    SDL_RenderCopy(screen,floor->tiles_sprites[floor->tiles[x][y]],NULL,&pos);
+                    SDL_RenderCopy(screen,tiles_sprites[room->tiles[x][y]],NULL,&pos);
         }
     }
 }

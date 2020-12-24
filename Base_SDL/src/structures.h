@@ -9,8 +9,10 @@
 #define window_height 600
 #define nbwTiles 12
 #define nbhTiles 8
-#define nbTilesText 2
+#define nbTilesText 3
 #define playerSpeed 10
+#define floorSize 10
+
 struct entity {
     SDL_Texture* sprite;
     SDL_Rect physic;
@@ -31,13 +33,25 @@ struct ennemie{
     int damage;
     Entity e;
 };
-struct floor {
+
+typedef struct room Room;
+struct room {
     int id;
     int tiles[nbwTiles][nbhTiles];
-    SDL_Texture** tiles_sprites;
+    Room* north;
+    Room* south;
+    Room* east;
+    Room* west;
 };
 
+struct floor{
+    int id;
+    Room* start;
+    SDL_Texture** tiles_sprites;
+};
 typedef struct floor Floor;
+
+
 
 
 

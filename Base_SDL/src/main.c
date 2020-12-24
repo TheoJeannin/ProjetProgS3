@@ -32,13 +32,17 @@ int main(int argc, char *argv[])
     }
     screen = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     //Initialisation Jeu
-    Floor* Salle = createEmptyFloor(screen,1);
-    Entity* Player = createEntity(screen,"ressources/images/player_idle.png",50,50,50,50);
+    Floor* Etage=createEmptyFloor(screen,1);
+    Room* Salle = createRightRooms(1,NULL,NULL,NULL,NULL);
+    Etage->start=Salle;
+    Entity* Player = createEntity(screen,"ressources/images/player_idle.png",100,400,50,50);
     Ennemie_List* ennemies = createList_Ennemie();
     ajouterList_Ennemie(ennemies,1,10,10,5,100,100,50,50,"ressources/images/bat.png",screen);
-    ajouterList_Ennemie(ennemies,1,10,10,5,500,200,50,50,"ressources/images/bat.png",screen);
-    ajouterList_Ennemie(ennemies,1,10,10,5,400,200,50,50,"ressources/images/bat.png",screen);
-    ajouterList_Ennemie(ennemies,1,10,10,5,10,200,50,50,"ressources/images/bat.png",screen);
+    ajouterList_Ennemie(ennemies,0,10,10,5,500,200,50,50,"ressources/images/bat.png",screen);
+    ajouterList_Ennemie(ennemies,0,10,10,5,200,200,50,50,"ressources/images/bat.png",screen);
+    ajouterList_Ennemie(ennemies,0,10,10,5,200,100,50,50,"ressources/images/bat.png",screen);
+    ajouterList_Ennemie(ennemies,0,10,10,5,200,100,30,20,"ressources/images/arrow.png",screen);
+
     // Boucle principale
     while(!terminer){
         SDL_PollEvent( &evenements );
@@ -67,7 +71,15 @@ int main(int argc, char *argv[])
                         break;
                     }
             }
-        printFloor(screen,Salle);
+        if((Player->physic.x)>=window_width-(Player->physic.w)-10){
+            Player->physic.x=1;
+            Salle=Salle->west;
+        }
+        else if((Player->physic.x)<=0){
+            Player->physic.x=window_width-(Player->physic.w)-11;
+            Salle=Salle->east;
+        }
+        printRoom(screen,Salle,Etage->tiles_sprites);
         printEntity(screen,Player);
         //printEntity(screen,&Ennemies->premier->e);
         printEnnemies(screen,ennemies);
