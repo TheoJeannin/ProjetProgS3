@@ -46,6 +46,7 @@ typedef struct room Room;
 struct room {
     int id;
     int tiles[nbwTiles][nbhTiles];
+    Ennemie_List* ennemies;
     Room* north;
     Room* south;
     Room* east;
@@ -58,6 +59,15 @@ struct floor{
     SDL_Texture** tiles_sprites;
 };
 typedef struct floor Floor;
+
+struct StatFloorHolder{
+    char direction;
+    int pNorth;
+    int pSouth;
+    int pEast;
+    int pWest;
+};
+typedef struct StatFloorHolder statFloorHolder;
 
 
 

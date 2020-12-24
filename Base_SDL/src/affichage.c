@@ -24,10 +24,12 @@ void printRoom(SDL_Renderer* screen,Room* room,SDL_Texture** tiles_sprites){
 }
 
 void printEnnemies(SDL_Renderer* screen,Ennemie_List* list){
-    Ennemie* cEnnemie=list->premier;
-    while(cEnnemie!=NULL){
-        printEntity(screen,&(cEnnemie->e));
-        cEnnemie=cEnnemie->suivant;
+    if(list!=NULL){
+        Ennemie* cEnnemie=list->premier;
+        while(cEnnemie!=NULL){
+            printEntity(screen,&(cEnnemie->e));
+            cEnnemie=cEnnemie->suivant;
+        }
     }
 }
 

@@ -6,7 +6,7 @@
 #include "structures.h"
 #include "logique.h"
 #include "affichage.h"
-
+#include <time.h>
 int main(int argc, char *argv[])
     {
     SDL_Window* window;
@@ -32,17 +32,24 @@ int main(int argc, char *argv[])
     }
     screen = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     //Initialisation Jeu
+    srand(time(NULL));
     Floor* Etage=createEmptyFloor(screen,1);
-    Room* Salle = createRightRooms(1,NULL,NULL,NULL,NULL);
+    statFloorHolder Stats;
+    Stats.direction='S';
+    Stats.pEast=80;
+    Stats.pWest=10;
+    Stats.pSouth=80;
+    Stats.pNorth=0;
+    Room* Salle = createFloor(1,NULL,NULL,NULL,NULL,Stats);
     Etage->start=Salle;
-    Player* player = createPlayer(screen,100,400,50,50);
+    Player* player = createPlayer(screen,100,400,44,70);
     Ennemie_List* ennemies = createList_Ennemie();
     ajouterList_Ennemie(ennemies,1,10,10,5,100,100,50,50,"ressources/images/bat.png",screen);
     ajouterList_Ennemie(ennemies,0,10,10,5,500,200,50,50,"ressources/images/bat.png",screen);
     ajouterList_Ennemie(ennemies,0,10,10,5,200,200,50,50,"ressources/images/bat.png",screen);
     ajouterList_Ennemie(ennemies,0,10,10,5,200,100,50,50,"ressources/images/bat.png",screen);
     ajouterList_Ennemie(ennemies,0,10,10,5,200,100,30,20,"ressources/images/arrow.png",screen);
-
+    Salle->ennemies=ennemies;
     // Boucle principale
     while(!terminer){
         SDL_PollEvent( &evenements );
@@ -75,18 +82,24 @@ int main(int argc, char *argv[])
                         break;
                     }
             }
-        if((player->physic.x)>=window_width-(player->physic.w)-10){
-            player->physic.x=1;
+        if(((player->physic.x)>=window_width-(player->physic.w)-10)&&((player->facing)==3)){
+            player->physic.x=3;
             Salle=Salle->west;
         }
-        else if((player->physic.x)<=0){
-            player->physic.x=window_width-(player->physic.w)-11;
+        else if(((player->physic.x)<=0)&&((player->facing)==2)){
+            player->physic.x=window_width-(player->physic.w)-10;
             Salle=Salle->east;
+        }else if(((player->physic.y)>=window_height-(player->physic.h)-10)&&((player->facing)==1)){
+            player->physic.y=0;
+            Salle=Salle->south;
+        }else if(((player->physic.y)<=0)&&((player->facing)==4)){
+            player->physic.y=window_height-(player->physic.h)-10;
+            Salle=Salle->north;
         }
         printRoom(screen,Salle,Etage->tiles_sprites);
         printPlayer(screen,player);
         //printEntity(screen,&Ennemies->premier->e);
-        printEnnemies(screen,ennemies);
+        printEnnemies(screen,Salle->ennemies);
         SDL_RenderPresent(screen);
     }
     // Quitter SDL
