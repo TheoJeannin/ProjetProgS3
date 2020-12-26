@@ -98,6 +98,10 @@ Floor* createEmptyFloor(SDL_Renderer* screen,int id){
     rEtage->tiles_sprites[0]=createImage("ressources/images/floor_texture.png",screen); //Chargement texture sol
     rEtage->tiles_sprites[1]=createImage("ressources/images/floor_rock.png",screen); //Chargement texture rocher
     rEtage->tiles_sprites[2]=createImage("ressources/images/wall_texture.png",screen);
+    rEtage->tiles_sprites[3]=createImage("ressources/images/treasure_room_floor.png",screen);
+    rEtage->tiles_sprites[4]=createImage("ressources/images/treasure_room_wall.png",screen);
+    rEtage->tiles_sprites[5]=createImage("ressources/images/boss_room_floor.png",screen);
+    rEtage->tiles_sprites[6]=createImage("ressources/images/boss_room_wall.png",screen);
     return rEtage;
 }
 
@@ -146,20 +150,36 @@ Room* createRightRooms(int id,Room* north,Room* south,Room* east,Room* west){
         (rRoom->tiles)[nbwTiles/2][0]=1;
         (rRoom->tiles)[nbwTiles/2-1][0]=1;
     }
-    (rRoom->tiles)[5][5]=1;
-    (rRoom->tiles)[8][4]=1;
-    (rRoom->tiles)[4][5]=1;
-    (rRoom->tiles)[2][2]=1;
-    rRoom->id=id;
     rRoom->ennemies=NULL;
     return rRoom;
 }
 
-Room* createFloor(int id,Room* north,Room* south,Room* east,Room* west,statFloorHolder stats){
+Room* createFloor(int property,Room* north,Room* south,Room* east,Room* west,statFloorHolder stats, int nbRooms,int nbSide){
     Room* rRoom=malloc(sizeof(Room));
+    static int id = -1;
+    id++;
     int x = 0;
     int y = 0;
     int s = 0;
+    int nextProperty = 0;
+    rRoom->property=property;
+    static int size_emb=0;
+    if(id==0){
+        size_emb=nbRooms/2;
+        SDL_Log("%d",size_emb);
+    }
+    int makeside = 0;
+    s=randomIntBetween(0,100);
+    if(stats.pEmb!=0){
+        while((makeside<2)&&((nbSide>0)&&(stats.pEmb>s))){
+            nbSide=nbSide-1;
+            makeside=makeside+1;
+            stats.pEmb=20;
+        }
+        if(makeside==0){
+            stats.pEmb+=20;
+        }
+    }
     //Genérationn tiles de la salle
     for(x = 0;x<nbwTiles;x++){
         for(y = 0;y<nbhTiles;y++){
@@ -198,10 +218,18 @@ Room* createFloor(int id,Room* north,Room* south,Room* east,Room* west,statFloor
         (rRoom->tiles)[nbwTiles-1][nbhTiles/2]=0;
         (rRoom->tiles)[nbwTiles-1][nbhTiles/2-1]=0;
     }
-    //Generation futur salle
-    SDL_Log("%s","ABC");
+    //Generation futur salle du chemin principale
+    if((nbRooms==1)&&(stats.pEmb==0)){
+        nextProperty=1;
+    }
+    else if(nbRooms==1){
+        nextProperty=2;
+    }
+    else{
+        nextProperty=0;
+    }
     s=randomIntBetween(0,100);
-    if(id<=8){
+    if(nbRooms!=0){
         if((stats.pEast>s)&&(east==NULL)){
             (rRoom->tiles)[0][nbhTiles/2]=0;
             (rRoom->tiles)[0][nbhTiles/2-1]=0;
@@ -218,7 +246,10 @@ Room* createFloor(int id,Room* north,Room* south,Room* east,Room* west,statFloor
                 stats.pSouth=10;
                 stats.pNorth=10;
             }
-            rRoom->east=createFloor(id+1,NULL,NULL,NULL,rRoom,stats);
+            rRoom->east=createFloor(nextProperty,NULL,NULL,NULL,rRoom,stats,nbRooms-1,nbSide);
+            stats.pEast=0;
+            stats.pSouth=50;
+            stats.pNorth=50;
         }else if((stats.pWest+stats.pEast>s)&&(west==NULL)){
             (rRoom->tiles)[nbwTiles-1][nbhTiles/2]=0;
             (rRoom->tiles)[nbwTiles-1][nbhTiles/2-1]=0;
@@ -235,7 +266,10 @@ Room* createFloor(int id,Room* north,Room* south,Room* east,Room* west,statFloor
                 stats.pSouth=10;
                 stats.pNorth=10;
             }
-            rRoom->west=createFloor(id+1,NULL,NULL,rRoom,NULL,stats);
+            rRoom->west=createFloor(nextProperty,NULL,NULL,rRoom,NULL,stats,nbRooms-1,nbSide);
+            stats.pWest=0;
+            stats.pSouth=50;
+            stats.pNorth=50;
         }else if((stats.pSouth+stats.pWest+stats.pEast>s)&&(south==NULL)){
             (rRoom->tiles)[nbwTiles/2][nbhTiles-1]=0;
             (rRoom->tiles)[nbwTiles/2-1][nbhTiles-1]=0;
@@ -252,7 +286,10 @@ Room* createFloor(int id,Room* north,Room* south,Room* east,Room* west,statFloor
                 stats.pSouth=80;
                 stats.pNorth=0;
             }
-            rRoom->south=createFloor(id+1,rRoom,NULL,NULL,NULL,stats);
+            rRoom->south=createFloor(nextProperty,rRoom,NULL,NULL,NULL,stats,nbRooms-1,nbSide);
+            stats.pSouth=0;
+            stats.pEast=50;
+            stats.pWest=50;
         }else{
             (rRoom->tiles)[nbwTiles/2][0]=0;
             (rRoom->tiles)[nbwTiles/2-1][0]=0;
@@ -269,7 +306,56 @@ Room* createFloor(int id,Room* north,Room* south,Room* east,Room* west,statFloor
                 stats.pSouth=0;
                 stats.pNorth=80;
             }
-            rRoom->north=createFloor(id+1,NULL,rRoom,NULL,NULL,stats);
+            rRoom->north=createFloor(nextProperty,NULL,rRoom,NULL,NULL,stats,nbRooms-1,nbSide);
+            stats.pNorth=0;
+            stats.pEast=50;
+            stats.pWest=50;
+        }
+        //Generation du chemin secondaire
+        stats.pEmb=0;
+        while(makeside){
+        makeside=makeside-1;
+        if((stats.pEast>s)&&(east==NULL)){
+            (rRoom->tiles)[0][nbhTiles/2]=0;
+            (rRoom->tiles)[0][nbhTiles/2-1]=0;
+            SDL_Log("%s","EC");
+            stats.direction='E';
+            stats.pEast=80;
+            stats.pWest=0;
+            stats.pSouth=10;
+            stats.pNorth=10;
+            rRoom->east=createFloor(nextProperty,NULL,NULL,NULL,rRoom,stats,randomIntBetween(2,size_emb),0);
+        }else if((stats.pWest+stats.pEast>s)&&(west==NULL)){
+            (rRoom->tiles)[nbwTiles-1][nbhTiles/2]=0;
+            (rRoom->tiles)[nbwTiles-1][nbhTiles/2-1]=0;
+            SDL_Log("%s","WC");
+            stats.direction='W';
+            stats.pEast=0;
+            stats.pWest=80;
+            stats.pSouth=10;
+            stats.pNorth=10;
+            rRoom->west=createFloor(nextProperty,NULL,NULL,rRoom,NULL,stats,randomIntBetween(2,size_emb),0);
+        }else if((stats.pSouth+stats.pWest+stats.pEast>s)&&(south==NULL)){
+            (rRoom->tiles)[nbwTiles/2][nbhTiles-1]=0;
+            (rRoom->tiles)[nbwTiles/2-1][nbhTiles-1]=0;
+            SDL_Log("%s","SC");
+            stats.direction='S';
+            stats.pEast=10;
+            stats.pWest=10;
+            stats.pSouth=80;
+            stats.pNorth=0;
+            rRoom->south=createFloor(nextProperty,rRoom,NULL,NULL,NULL,stats,randomIntBetween(2,size_emb),0);
+        }else{
+            (rRoom->tiles)[nbwTiles/2][0]=0;
+            (rRoom->tiles)[nbwTiles/2-1][0]=0;
+            SDL_Log("%s","NC");
+            stats.direction='N';
+            stats.pEast=10;
+            stats.pWest=10;
+            stats.pSouth=0;
+            stats.pNorth=80;
+            rRoom->north=createFloor(nextProperty,NULL,rRoom,NULL,NULL,stats,randomIntBetween(2,size_emb),0);
+        }
         }
     }
     (rRoom->tiles)[5][5]=1;
@@ -285,5 +371,32 @@ int randomIntBetween(int a, int b){
     return (rand() % (b+1)) + a ;
 }
 
+float vAbsolue(float a){
+    if(a<0){
+        return -a;
+    }
+    else{
+        return a;
+    }
+}
+
+void moveMobTowardPlayer(Player* Joueur, Ennemie_List* Ennemies){
+    Ennemie* cEnnemie = Ennemies->premier;
+    float vDifference;
+    float hDifference;
+    float hRatio;
+    float vRatio;
+    while(cEnnemie!=NULL){
+        vDifference=Joueur->physic.y-cEnnemie->e.physic.y;
+        hDifference=Joueur->physic.x-cEnnemie->e.physic.x;
+        if((vDifference!=0)||(hDifference!=0)){
+            hRatio=hDifference/(vAbsolue(vDifference)+vAbsolue(hDifference));
+            vRatio=vDifference/(vAbsolue(vDifference)+vAbsolue(hDifference));
+            cEnnemie->e.physic.x+=round(batSpeed*hRatio);
+            cEnnemie->e.physic.y+=round(batSpeed*vRatio);
+        }
+        cEnnemie=cEnnemie->suivant;
+        }
+}
 
 

@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
         SDL_Quit();
         return EXIT_FAILURE;
     }
-    screen = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    screen = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
     //Initialisation Jeu
     srand(time(NULL));
     Floor* Etage=createEmptyFloor(screen,1);
@@ -40,7 +40,8 @@ int main(int argc, char *argv[])
     Stats.pWest=10;
     Stats.pSouth=80;
     Stats.pNorth=0;
-    Room* Salle = createFloor(1,NULL,NULL,NULL,NULL,Stats);
+    Stats.pEmb=40;
+    Room* Salle = createFloor(0,NULL,NULL,NULL,NULL,Stats,8,2,2);
     Etage->start=Salle;
     Player* player = createPlayer(screen,100,400,44,70);
     Ennemie_List* ennemies = createList_Ennemie();
@@ -48,7 +49,7 @@ int main(int argc, char *argv[])
     ajouterList_Ennemie(ennemies,0,10,10,5,500,200,50,50,"ressources/images/bat.png",screen);
     ajouterList_Ennemie(ennemies,0,10,10,5,200,200,50,50,"ressources/images/bat.png",screen);
     ajouterList_Ennemie(ennemies,0,10,10,5,200,100,50,50,"ressources/images/bat.png",screen);
-    ajouterList_Ennemie(ennemies,0,10,10,5,200,100,30,20,"ressources/images/arrow.png",screen);
+    //ajouterList_Ennemie(ennemies,0,10,10,5,200,100,30,20,"ressources/images/arrow.png",screen);
     Salle->ennemies=ennemies;
     // Boucle principale
     while(!terminer){
@@ -96,6 +97,7 @@ int main(int argc, char *argv[])
             player->physic.y=window_height-(player->physic.h)-10;
             Salle=Salle->north;
         }
+        moveMobTowardPlayer(player,ennemies);
         printRoom(screen,Salle,Etage->tiles_sprites);
         printPlayer(screen,player);
         //printEntity(screen,&Ennemies->premier->e);

@@ -9,9 +9,10 @@
 #define window_height 600
 #define nbwTiles 12
 #define nbhTiles 8
-#define nbTilesText 3
+#define nbTilesText 7
 #define playerSpeed 10
 #define floorSize 10
+#define batSpeed 2
 
 
 struct entity {
@@ -45,6 +46,7 @@ typedef struct player Player;
 typedef struct room Room;
 struct room {
     int id;
+    int property;
     int tiles[nbwTiles][nbhTiles];
     Ennemie_List* ennemies;
     Room* north;
@@ -66,6 +68,7 @@ struct StatFloorHolder{
     int pSouth;
     int pEast;
     int pWest;
+    int pEmb;
 };
 typedef struct StatFloorHolder statFloorHolder;
 
