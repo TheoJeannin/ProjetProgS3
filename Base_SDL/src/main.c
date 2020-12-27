@@ -44,11 +44,11 @@ int main(int argc, char *argv[])
     Room* Salle = createFloor(0,NULL,NULL,NULL,NULL,Stats,8,2,2);
     Etage->start=Salle;
     Player* player = createPlayer(screen,100,400,44,70);
-    Ennemie_List* ennemies = createList_Ennemie();
-    ajouterList_Ennemie(ennemies,1,10,10,5,100,100,50,50,"ressources/images/bat.png",screen);
-    ajouterList_Ennemie(ennemies,0,10,10,5,500,200,50,50,"ressources/images/bat.png",screen);
-    ajouterList_Ennemie(ennemies,0,10,10,5,200,200,50,50,"ressources/images/bat.png",screen);
-    ajouterList_Ennemie(ennemies,0,10,10,5,200,100,50,50,"ressources/images/bat.png",screen);
+    Ennemie_List* ennemies = NULL; //createList_Ennemie();
+    //ajouterList_Ennemie(ennemies,1,10,10,5,100,100,50,50,"ressources/images/bat.png",screen);
+    //ajouterList_Ennemie(ennemies,0,10,10,5,500,200,50,50,"ressources/images/bat.png",screen);
+    //ajouterList_Ennemie(ennemies,0,10,10,5,200,200,50,50,"ressources/images/bat.png",screen);
+    //ajouterList_Ennemie(ennemies,0,10,10,5,200,100,50,50,"ressources/images/bat.png",screen);
     //ajouterList_Ennemie(ennemies,0,10,10,5,200,100,30,20,"ressources/images/arrow.png",screen);
     Salle->ennemies=ennemies;
     // Boucle principale
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
             player->physic.y=window_height-(player->physic.h)-10;
             Salle=Salle->north;
         }
-        moveMobTowardPlayer(player,ennemies);
+        //moveMobTowardPlayer(player,ennemies);
         printRoom(screen,Salle,Etage->tiles_sprites);
         printPlayer(screen,player);
         //printEntity(screen,&Ennemies->premier->e);
