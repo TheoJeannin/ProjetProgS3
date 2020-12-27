@@ -1,0 +1,11 @@
+-Generation de la salle
+-Generation de l'étage
+-Free des fonctions
+-Taille des embranchement
+-Fonction test de création droite
+-Parties misent en comment
+-Id des salles
+
+-Mouvement 
+-Lag
+-Stocker image entité dans tableau

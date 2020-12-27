@@ -6,7 +6,7 @@
 #include "structures.h"
 #include "logique.h"
 #include "affichage.h"
-
+#include <time.h>
 int main(int argc, char *argv[])
     {
     SDL_Window* window;
@@ -30,13 +30,27 @@ int main(int argc, char *argv[])
         SDL_Quit();
         return EXIT_FAILURE;
     }
-    screen = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    screen = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
     //Initialisation Jeu
-    Floor* Salle = createEmptyFloor(screen,1);
-    Entity* Player = createEntity(screen,"ressources/images/base_sprite.png",50,50,50,50);
-    printFloor(screen,Salle);
-    printEntity(screen,Player);
-    SDL_RenderPresent(screen);
+    srand(time(NULL));
+    Floor* Etage=createEmptyFloor(screen,1);
+    statFloorHolder Stats;
+    Stats.direction='S';
+    Stats.pEast=80;
+    Stats.pWest=10;
+    Stats.pSouth=80;
+    Stats.pNorth=0;
+    Stats.pEmb=40;
+    Room* Salle = createFloor(0,NULL,NULL,NULL,NULL,Stats,8,2,2);
+    Etage->start=Salle;
+    Player* player = createPlayer(screen,100,400,44,70);
+    Ennemie_List* ennemies = createList_Ennemie();
+    ajouterList_Ennemie(ennemies,1,10,10,5,100,100,50,50,"ressources/images/bat.png",screen);
+    ajouterList_Ennemie(ennemies,0,10,10,5,500,200,50,50,"ressources/images/bat.png",screen);
+    ajouterList_Ennemie(ennemies,0,10,10,5,200,200,50,50,"ressources/images/bat.png",screen);
+    ajouterList_Ennemie(ennemies,0,10,10,5,200,100,50,50,"ressources/images/bat.png",screen);
+    ajouterList_Ennemie(ennemies,0,10,10,5,200,100,30,20,"ressources/images/arrow.png",screen);
+    Salle->ennemies=ennemies;
     // Boucle principale
     while(!terminer){
         SDL_PollEvent( &evenements );
@@ -49,24 +63,44 @@ int main(int argc, char *argv[])
                     switch(evenements.key.keysym.sym)
                     {
                         case SDLK_z:
-                            moveEntity(Player,Salle->tiles,0,-playerSpeed);
+                            moveEntity(&(player->physic),Salle->tiles,0,-playerSpeed);
+                            player->facing=4;
                         break;
                         case SDLK_q:
-                            moveEntity(Player,Salle->tiles,-playerSpeed,0);
+                            moveEntity(&(player->physic),Salle->tiles,-playerSpeed,0);
+                            player->facing=2;
                         break;
                         case SDLK_s:
-                            moveEntity(Player,Salle->tiles,0,playerSpeed);
+                            moveEntity(&(player->physic),Salle->tiles,0,playerSpeed);
+                            player->facing=1;
                         break;
                         case SDLK_d:
-                            moveEntity(Player,Salle->tiles,playerSpeed,0);
+                            moveEntity(&(player->physic),Salle->tiles,playerSpeed,0);
+                            player->facing=3;
                         break;
                         case SDLK_ESCAPE:
                             terminer = true;
                         break;
                     }
             }
-        printFloor(screen,Salle);
-        printEntity(screen,Player);
+        if(((player->physic.x)>=window_width-(player->physic.w)-10)&&((player->facing)==3)){
+            player->physic.x=3;
+            Salle=Salle->west;
+        }
+        else if(((player->physic.x)<=0)&&((player->facing)==2)){
+            player->physic.x=window_width-(player->physic.w)-10;
+            Salle=Salle->east;
+        }else if(((player->physic.y)>=window_height-(player->physic.h)-10)&&((player->facing)==1)){
+            player->physic.y=0;
+            Salle=Salle->south;
+        }else if(((player->physic.y)<=0)&&((player->facing)==4)){
+            player->physic.y=window_height-(player->physic.h)-10;
+            Salle=Salle->north;
+        }
+        moveMobTowardPlayer(player,ennemies);
+        printRoom(screen,Salle,Etage->tiles_sprites);
+        printPlayer(screen,player);
+        printEnnemies(screen,Salle->ennemies);
         SDL_RenderPresent(screen);
     }
     // Quitter SDL
