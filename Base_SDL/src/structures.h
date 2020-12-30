@@ -9,11 +9,13 @@
 #define window_height 600
 #define nbwTiles 12
 #define nbhTiles 8
-#define nbTilesText 7
+#define nbTilesText 9
 #define playerSpeed 10
 #define floorSize 10
 #define batSpeed 2
-
+#define nbTreasureRoom 1
+#define nbCommonRoom 8
+#define nbBossRoom 1
 
 struct entity {
     SDL_Texture* sprite;

@@ -96,62 +96,48 @@ Floor* createEmptyFloor(SDL_Renderer* screen,int id){
     rEtage->start=NULL;
     rEtage->tiles_sprites=malloc(sizeof(int)*nbTilesText);
     rEtage->tiles_sprites[0]=createImage("ressources/images/floor_texture.png",screen); //Chargement texture sol
-    rEtage->tiles_sprites[1]=createImage("ressources/images/floor_rock.png",screen); //Chargement texture rocher
+    rEtage->tiles_sprites[1]=createImage("ressources/images/crackeling_wall.png",screen); //Chargement texture rocher
     rEtage->tiles_sprites[2]=createImage("ressources/images/wall_texture.png",screen);
     rEtage->tiles_sprites[3]=createImage("ressources/images/treasure_room_floor.png",screen);
     rEtage->tiles_sprites[4]=createImage("ressources/images/treasure_room_wall.png",screen);
     rEtage->tiles_sprites[5]=createImage("ressources/images/boss_room_floor.png",screen);
     rEtage->tiles_sprites[6]=createImage("ressources/images/boss_room_wall.png",screen);
+    rEtage->tiles_sprites[7]=createImage("ressources/images/hole.png",screen);
+    rEtage->tiles_sprites[8]=createImage("ressources/images/cold_floor.png",screen);
     return rEtage;
 }
 
-Room* createRightRooms(int id,Room* north,Room* south,Room* east,Room* west){
-    Room* rRoom=malloc(sizeof(Room));
-    int x = 0;
-    int y = 0;
-    for(x = 0;x<nbwTiles;x++){
-        for(y = 0;y<nbhTiles;y++){
-            if((((x==0)||(x==nbwTiles-1))||(y==0))||(y==nbhTiles-1)){
-                (rRoom->tiles)[x][y]=2;
-            }
-            else{
-                (rRoom->tiles)[x][y]=0;
-            }
+void retireEnnemie(){
+}
+
+void makeRoomTiles(Room* salle){
+        FILE * roomFile;
+        char filename[100];
+        char* tileValues = malloc(sizeof(char)*(nbwTiles+2));
+        int i = 0;
+        int y = 0;
+        switch(salle->property){
+            case 0:
+                sprintf(filename,"ressources/rooms/common/%d.txt",randomIntBetween(1,nbCommonRoom));
+            break;
+            case 1:
+                sprintf(filename,"ressources/rooms/treasure/%d.txt",randomIntBetween(1,nbTreasureRoom));
+            break;
+            case 2:
+                sprintf(filename,"ressources/rooms/boss/%d.txt",randomIntBetween(1,nbBossRoom));
+            break;
         }
-    }
-    if(north!=NULL){
-        rRoom->north=north;
-        (rRoom->tiles)[nbwTiles/2][0]=1;
-        (rRoom->tiles)[nbwTiles/2-1][0]=1;
-    }
-    else{
-        rRoom->north=NULL;
-    }
-    if(south!=NULL){
-        rRoom->south=south;
-        (rRoom->tiles)[nbwTiles/2][nbhTiles-1]=0;
-        (rRoom->tiles)[nbwTiles/2-1][nbhTiles-1]=0;
-    }
-    else{
-        rRoom->south=NULL;
-    }
-    if(east!=NULL){
-        rRoom->east=east;
-        (rRoom->tiles)[0][nbhTiles/2]=0;
-        (rRoom->tiles)[0][nbhTiles/2-1]=0;
-    }
-    if(west!=NULL){
-        rRoom->west=west;
-        (rRoom->tiles)[nbwTiles-1][nbhTiles/2]=0;
-        (rRoom->tiles)[nbwTiles-1][nbhTiles/2-1]=0;
-    }
-    if(id<=8){
-        rRoom->west=createRightRooms(id+1,NULL,NULL,rRoom,NULL);
-        (rRoom->tiles)[nbwTiles/2][0]=1;
-        (rRoom->tiles)[nbwTiles/2-1][0]=1;
-    }
-    rRoom->ennemies=NULL;
-    return rRoom;
+        SDL_Log("%s",filename);
+        roomFile = fopen(filename,"r");
+        for(i = 0; i<nbhTiles; i++){
+                tileValues = fgets(tileValues,nbwTiles+2,roomFile);
+                SDL_Log(tileValues);
+                for(y = 0; y<nbwTiles;y++){
+                    (salle->tiles)[y][i]=tileValues[y]-48;
+                }
+                y=0;
+        }
+        free(tileValues);
 }
 
 Room* createFloor(int property,Room* north,Room* south,Room* east,Room* west,statFloorHolder stats, int nbRooms,int nbSide){
@@ -182,16 +168,7 @@ Room* createFloor(int property,Room* north,Room* south,Room* east,Room* west,sta
         }
     }
     //Genérationn tiles de la salle
-    for(x = 0;x<nbwTiles;x++){
-        for(y = 0;y<nbhTiles;y++){
-            if((((x==0)||(x==nbwTiles-1))||(y==0))||(y==nbhTiles-1)){
-                (rRoom->tiles)[x][y]=2;
-            }
-            else{
-                (rRoom->tiles)[x][y]=0;
-            }
-        }
-    }
+    makeRoomTiles(rRoom);
     //Generation des portes
     if(north!=NULL){
         rRoom->north=north;
@@ -366,16 +343,12 @@ Room* createFloor(int property,Room* north,Room* south,Room* east,Room* west,sta
         }
         }
     }
-    (rRoom->tiles)[5][5]=1;
-    (rRoom->tiles)[8][4]=1;
-    (rRoom->tiles)[4][5]=1;
-    (rRoom->tiles)[2][2]=1;
     rRoom->ennemies=NULL;
     return rRoom;
 }
 
 int randomIntBetween(int a, int b){
-    return (rand() % (b+1)) + a ;
+    return (rand() % (b)) + a ;
 }
 
 float vAbsolue(float a){
@@ -406,4 +379,11 @@ void moveMobTowardPlayer(Player* Joueur, Ennemie_List* Ennemies){
         }
 }
 
-
+int entityCollide(SDL_Rect a, SDL_Rect a){
+    if (a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.height + a.y > b.y) {
+        return 1;
+    }
+    else{
+        return 0;
+    }
+}

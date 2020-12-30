@@ -50,7 +50,6 @@ int main(int argc, char *argv[])
     //ajouterList_Ennemie(ennemies,0,10,10,5,200,200,50,50,"ressources/images/bat.png",screen);
     //ajouterList_Ennemie(ennemies,0,10,10,5,200,100,50,50,"ressources/images/bat.png",screen);
     //ajouterList_Ennemie(ennemies,0,10,10,5,200,100,30,20,"ressources/images/arrow.png",screen);
-    Salle->ennemies=ennemies;
     // Boucle principale
     while(!terminer){
         SDL_PollEvent( &evenements );

@@ -43,6 +43,12 @@ void printRoom(SDL_Renderer* screen,Room* room,SDL_Texture** tiles_sprites){
                                 SDL_RenderCopy(screen,tiles_sprites[2],NULL,&pos);
                             }
                         break;
+                        case 7 :
+                            SDL_RenderCopy(screen,tiles_sprites[7],NULL,&pos);
+                        break;
+                        case 8 :
+                            SDL_RenderCopy(screen,tiles_sprites[8],NULL,&pos);
+                        break;
                     }
         }
     }
