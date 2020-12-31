@@ -12,10 +12,10 @@
 #define nbTilesText 9
 #define playerSpeed 10
 #define floorSize 10
-#define batSpeed 2
 #define nbTreasureRoom 1
 #define nbCommonRoom 8
 #define nbBossRoom 1
+#define baseHealth 6
 
 struct entity {
     SDL_Texture* sprite;
@@ -33,7 +33,9 @@ struct ennemie{
     Ennemie_List* suivant;
     int type;
     int health;
-    int speed;
+    int vSpeed;
+    int hSpeed;
+    int state;
     int damage;
     Entity e;
 };
@@ -41,6 +43,7 @@ struct ennemie{
 struct player{
     SDL_Texture** sprites;
     SDL_Rect physic;
+    int health;
     int facing;
 };
 typedef struct player Player;

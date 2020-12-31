@@ -18,6 +18,7 @@ Player* createPlayer(SDL_Renderer* screen,int x,int y,int w,int h){
     rPlayer->physic.w=w;
     rPlayer->physic.h=h;
     rPlayer->facing=1;
+    rPlayer->health=baseHealth;
     return rPlayer;
 }
 
@@ -69,15 +70,13 @@ Ennemie_List* createList_Ennemie(){
     return liste;
 }
 
-void ajouterList_Ennemie(Ennemie_List* liste,int type,int health,int speed,int damage,int x,int y,int w,int h, char* spriteL,SDL_Renderer* renderer){
+void ajouterList_Ennemie(Ennemie_List* liste,int type,int health,int vSpeed,int hSpeed,int damage,int x,int y,int w,int h, char* spriteL,SDL_Renderer* renderer){
     Ennemie* nEnnemie = malloc(sizeof(Ennemie));
     if(nEnnemie==NULL)
     {
         exit(EXIT_FAILURE);
     }
-    nEnnemie->suivant=liste;
     nEnnemie->type=type;
-    nEnnemie->speed=speed;
     nEnnemie->damage=damage;
     nEnnemie->e.physic.x=x;
     nEnnemie->e.physic.y=y;
@@ -85,6 +84,9 @@ void ajouterList_Ennemie(Ennemie_List* liste,int type,int health,int speed,int d
     nEnnemie->e.physic.h=h;
     nEnnemie->e.sprite=createImage(spriteL,renderer);
     nEnnemie->suivant=liste->premier;
+    nEnnemie->vSpeed=vSpeed;
+    nEnnemie->hSpeed=hSpeed;
+    nEnnemie->state=0;
     liste->premier=nEnnemie;
 }
 
@@ -118,7 +120,7 @@ void makeRoomTiles(Room* salle){
         int y = 0;
         switch(salle->property){
             case 0:
-                sprintf(filename,"ressources/rooms/common/%d.txt",randomIntBetween(1,nbCommonRoom));
+                sprintf(filename,"ressources/rooms/common/%d.txt",4);
             break;
             case 1:
                 sprintf(filename,"ressources/rooms/treasure/%d.txt",randomIntBetween(1,nbTreasureRoom));
@@ -127,7 +129,6 @@ void makeRoomTiles(Room* salle){
                 sprintf(filename,"ressources/rooms/boss/%d.txt",randomIntBetween(1,nbBossRoom));
             break;
         }
-        SDL_Log("%s",filename);
         roomFile = fopen(filename,"r");
         for(i = 0; i<nbhTiles; i++){
                 tileValues = fgets(tileValues,nbwTiles+2,roomFile);
@@ -152,7 +153,6 @@ Room* createFloor(int property,Room* north,Room* south,Room* east,Room* west,sta
     static int size_emb=0;
     if(id==0){
         size_emb=(nbRooms/2)-1;
-        SDL_Log("%d",size_emb);
     }
     int makeside = 0;
     s=randomIntBetween(0,100);
@@ -360,30 +360,108 @@ float vAbsolue(float a){
     }
 }
 
-void moveMobTowardPlayer(Player* Joueur, Ennemie_List* Ennemies){
-    Ennemie* cEnnemie = Ennemies->premier;
+void moveMobTowardPlayer(Player* joueur, Ennemie* ennemie){
     float vDifference;
     float hDifference;
     float hRatio;
     float vRatio;
-    while(cEnnemie!=NULL){
-        vDifference=Joueur->physic.y-cEnnemie->e.physic.y;
-        hDifference=Joueur->physic.x-cEnnemie->e.physic.x;
-        if((vDifference!=0)||(hDifference!=0)){
-            hRatio=hDifference/(vAbsolue(vDifference)+vAbsolue(hDifference));
-            vRatio=vDifference/(vAbsolue(vDifference)+vAbsolue(hDifference));
-            cEnnemie->e.physic.x+=round(batSpeed*hRatio);
-            cEnnemie->e.physic.y+=round(batSpeed*vRatio);
-        }
-        cEnnemie=cEnnemie->suivant;
-        }
+    vDifference=joueur->physic.y-ennemie->e.physic.y;
+    hDifference=joueur->physic.x-ennemie->e.physic.x;
+    if((vDifference!=0)||(hDifference!=0)){
+        hRatio=hDifference/(vAbsolue(vDifference)+vAbsolue(hDifference));
+        vRatio=vDifference/(vAbsolue(vDifference)+vAbsolue(hDifference));
+        ennemie->e.physic.x+=round(ennemie->vSpeed*hRatio);
+        ennemie->e.physic.y+=round(ennemie->vSpeed*vRatio);
+    }
 }
 
-int entityCollide(SDL_Rect a, SDL_Rect a){
-    if (a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.height + a.y > b.y) {
+void moveMobCharging(Player* joueur,Ennemie* ennemie){
+    SDL_Point midPlayer;
+    midPlayer.x= joueur->physic.x+(joueur->physic.w/2);
+    midPlayer.y= joueur->physic.y+(joueur->physic.h/2);
+    SDL_Rect nextPos;
+    if(((midPlayer.x>=ennemie->e.physic.x)&&(midPlayer.x<=ennemie->e.physic.x+ennemie->e.physic.w))&&(ennemie->state!=1)){
+            if(ennemie->e.physic.y>joueur->physic.y){
+                ennemie->vSpeed=-5;
+            }
+            else{
+                ennemie->vSpeed=5;
+            }
+            ennemie->state=1;
+       }
+    else if(((midPlayer.y>=ennemie->e.physic.y)&&(midPlayer.y<=ennemie->e.physic.y+ennemie->e.physic.h))&&(ennemie->state!=1)){
+            if(ennemie->e.physic.x>joueur->physic.x){
+                ennemie->hSpeed=-5;
+                SDL_Log("A");
+            }
+            else{
+                ennemie->hSpeed=5;
+                SDL_Log("B");
+            }
+            ennemie->state=1;
+    }
+    nextPos.x=ennemie->e.physic.x+ennemie->hSpeed;
+    nextPos.y=ennemie->e.physic.y+ennemie->vSpeed;
+    if((((nextPos.x)>0)&&((nextPos.x)<(window_width-ennemie->e.physic.w)))&&(((nextPos.y)>0)&&((nextPos.y)<(window_height-ennemie->e.physic.h)))){
+        ennemie->e.physic.x+=ennemie->hSpeed;
+        ennemie->e.physic.y+=ennemie->vSpeed;
+    }
+    else if(ennemie->state=0){
+        ennemie->e.physic.x=0;
+        ennemie->e.physic.y=0;
+    }
+}
+
+void walkTurnObstacle(int floor[nbwTiles][nbhTiles],Ennemie* ennemie){
+    SDL_Rect nextPos;
+    nextPos.x=ennemie->e.physic.x+ennemie->hSpeed;
+    nextPos.y=ennemie->e.physic.y+ennemie->vSpeed;
+    nextPos.h=ennemie->e.physic.h;
+    nextPos.w=ennemie->e.physic.w;
+    SDL_Log("%d",(isCollidingWithLayout(floor,nextPos)));
+    if((isCollidingWithLayout(floor,nextPos))){
+        switch(randomIntBetween(1,4)){
+            case 1 :
+                ennemie->hSpeed=2;
+                ennemie->vSpeed=0;
+            break;
+            case 2 :
+                ennemie->vSpeed=2;
+                ennemie->hSpeed=0;
+            break;
+            case 3:
+                ennemie->hSpeed=2;
+                ennemie->vSpeed=0;
+            break;
+            case 4:
+                ennemie->vSpeed=2;
+                ennemie->hSpeed=0;
+            break;
+        }
+    }else{
+        ennemie->e.physic.x+=ennemie->hSpeed;
+        ennemie->e.physic.y+=ennemie->vSpeed;
+    }
+}
+
+int entityCollide(SDL_Rect a, SDL_Rect b){
+    if (a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.h + a.y > b.y) {
         return 1;
     }
     else{
         return 0;
     }
+}
+
+int isCollidingWithLayout(int floor[nbwTiles][nbhTiles],SDL_Rect Pos){
+            if((floor[((Pos.x)/(window_width/nbwTiles))][((Pos.y)/(window_height/nbhTiles))]==0)&&
+               ((floor[((Pos.x+Pos.w-4)/(window_width/nbwTiles))][((Pos.y+Pos.h-4)/(window_height/nbhTiles))]==0))&&
+               ((floor[((Pos.x)/(window_width/nbwTiles))][((Pos.y+Pos.h-4)/(window_height/nbhTiles))]==0))&&
+               ((floor[((Pos.x+Pos.w-4)/(window_width/nbwTiles))][((Pos.y)/(window_height/nbhTiles))]==0)))
+                {
+                return 0;
+            }
+            else{
+                return 1;
+            }
 }
