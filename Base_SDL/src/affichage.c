@@ -6,10 +6,6 @@
 #include "structures.h"
 #include "extensionsdl.h"
 
-void printEntity(SDL_Renderer* screen,Entity* entity){
-    SDL_RenderCopy(screen,entity->sprite,NULL,&(entity->physic));
-}
-
 void printRoom(SDL_Renderer* screen,Room* room,SDL_Texture** tiles_sprites){
     int x = 0;
     int y = 0;
@@ -54,11 +50,27 @@ void printRoom(SDL_Renderer* screen,Room* room,SDL_Texture** tiles_sprites){
     }
 }
 
-void printEnnemies(SDL_Renderer* screen,Ennemie_List* list){
+void printEnnemies(SDL_Renderer* screen,Ennemie_List* list,SDL_Texture** listSprites){
     if(list!=NULL){
         Ennemie* cEnnemie=list->premier;
         while(cEnnemie!=NULL){
-            printEntity(screen,&(cEnnemie->e));
+            switch(cEnnemie->type){
+            case 1:
+                SDL_RenderCopy(screen,listSprites[0],NULL,&(cEnnemie->e.physic));
+            break;
+            case 2:
+                SDL_RenderCopy(screen,listSprites[1],NULL,&(cEnnemie->e.physic));
+            break;
+            case 3:
+                SDL_RenderCopy(screen,listSprites[2],NULL,&(cEnnemie->e.physic));
+            break;
+            case 4:
+                SDL_RenderCopy(screen,listSprites[3],NULL,&(cEnnemie->e.physic));
+            break;
+            case 5:
+                SDL_RenderCopy(screen,listSprites[4],NULL,&(cEnnemie->e.physic));
+            break;
+            }
             cEnnemie=cEnnemie->suivant;
         }
     }
@@ -66,4 +78,7 @@ void printEnnemies(SDL_Renderer* screen,Ennemie_List* list){
 
 void printPlayer(SDL_Renderer* screen,Player* player){
     SDL_RenderCopy(screen,player->sprites[player->facing-1],NULL,&(player->physic));
+    if(player->attacking>=10){
+        SDL_RenderCopy(screen,player->sword->sprite,NULL,&(player->sword->physic));
+    }
 }

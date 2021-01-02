@@ -41,16 +41,15 @@ int main(int argc, char *argv[])
     Stats.pSouth=80;
     Stats.pNorth=0;
     Stats.pEmb=40;
+    SDL_Texture** listSpritesEnnemies = createEnnemiesSpritesList(screen);
     Room* Salle = createFloor(0,NULL,NULL,NULL,NULL,Stats,8,2,2);
     Etage->start=Salle;
     Player* player = createPlayer(screen,0,window_width/2,44,70);
-    Ennemie_List* ennemies = createList_Ennemie();
-    Salle->ennemies=ennemies;
-    ajouterList_Ennemie(ennemies,1,2,2,0,1,200,200,50,50,"ressources/images/bat.png",screen);
-    //ajouterList_Ennemie(ennemies,0,10,10,5,200,200,50,50,"ressources/images/bat.png",screen);
-    //ajouterList_Ennemie(ennemies,0,10,10,5,200,100,50,50,"ressources/images/bat.png",screen);
-    //ajouterList_Ennemie(ennemies,0,10,10,5,200,100,30,20,"ressources/images/arrow.png",screen);
-    // Boucle principale
+    //ajouterList_Ennemie(ennemies,1,2,2,0,1,200,200,50,50);
+    //ajouterList_Ennemie(ennemies,2,1,2,2,1,300,250,50,50);
+    //ajouterList_Ennemie(ennemies,2,1,2,2,1,300,450,50,50);
+    //ajouterList_Ennemie(ennemies,2,1,2,2,1,400,250,50,50);
+    //Boucle principale
     while(!terminer){
         SDL_PollEvent( &evenements );
             switch(evenements.type)
@@ -79,6 +78,10 @@ int main(int argc, char *argv[])
                         break;
                         case SDLK_ESCAPE:
                             terminer = true;
+                        case SDLK_SPACE:
+                        if(player->attacking==0){
+                            player->attacking=30;
+                        }
                         break;
                     }
             }
@@ -96,11 +99,19 @@ int main(int argc, char *argv[])
             player->physic.y=window_height-(player->physic.h)-10;
             Salle=Salle->north;
         }
+        if(player->attacking!=0){
+            attackPlayer(player,Salle->ennemies,Salle->tiles);
+        }
         //moveMobTowardPlayer(player,Salle->ennemies->premier);
-        walkTurnObstacle(Salle->tiles,Salle->ennemies->premier);
+        //walkTurnObstacle(Salle->tiles,Salle->ennemies->premier);
+        //moveChargingMob(player,Salle->ennemies->premier);
+        //makeShooterShoot(Salle->ennemies,ennemies->premier->suivant,player,screen);
+        //moveBullets(Salle->ennemies);
+        ennemiesCollideWithPlayer(Salle->ennemies,player);
+        moveEnnemies(Salle->ennemies,player,Salle->tiles);
         printRoom(screen,Salle,Etage->tiles_sprites);
         printPlayer(screen,player);
-        printEnnemies(screen,Salle->ennemies);
+        printEnnemies(screen,Salle->ennemies,listSpritesEnnemies);
         SDL_RenderPresent(screen);
     }
     // Quitter SDL

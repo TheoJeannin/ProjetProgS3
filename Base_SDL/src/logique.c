@@ -6,21 +6,6 @@
 #include <SDL2/SDL_image.h>
 #include "extensionsdl.h"
 #include "structures.h"
-Player* createPlayer(SDL_Renderer* screen,int x,int y,int w,int h){
-    Player* rPlayer=malloc(sizeof(Player));
-    rPlayer->sprites=malloc(sizeof(SDL_Texture*)*4);
-    rPlayer->sprites[0]=createImage("ressources/images/player_idle.png",screen);
-    rPlayer->sprites[1]=createImage("ressources/images/player_left.png",screen);
-    rPlayer->sprites[2]=createImage("ressources/images/player_right.png",screen);
-    rPlayer->sprites[3]=createImage("ressources/images/player_up.png",screen);
-    rPlayer->physic.x=x;
-    rPlayer->physic.y=y;
-    rPlayer->physic.w=w;
-    rPlayer->physic.h=h;
-    rPlayer->facing=1;
-    rPlayer->health=baseHealth;
-    return rPlayer;
-}
 
 Entity* createEntity(SDL_Renderer* screen,const char *cheminSprite,int x,int y,int w,int h){
     Entity* rEntity = malloc(sizeof(Entity));
@@ -40,6 +25,30 @@ Entity* createEntity(SDL_Renderer* screen,const char *cheminSprite,int x,int y,i
             rEntity->physic.h=h;
     }
     return rEntity;
+}
+
+Player* createPlayer(SDL_Renderer* screen,int x,int y,int w,int h){
+    Player* rPlayer=malloc(sizeof(Player));
+    rPlayer->sprites=malloc(sizeof(SDL_Texture*)*4);
+    rPlayer->sprites[0]=createImage("ressources/images/player_idle.png",screen);
+    rPlayer->sprites[1]=createImage("ressources/images/player_left.png",screen);
+    rPlayer->sprites[2]=createImage("ressources/images/player_right.png",screen);
+    rPlayer->sprites[3]=createImage("ressources/images/player_up.png",screen);
+    rPlayer->physic.x=x;
+    rPlayer->physic.y=y;
+    rPlayer->physic.w=w;
+    rPlayer->physic.h=h;
+    rPlayer->facing=1;
+    rPlayer->health=baseHealth;
+    rPlayer->attacking=0;
+    rPlayer->sword=createEntity(screen,"ressources/images/sword_down.png",x,y,20,50);
+    rPlayer->swordSprites=malloc(sizeof(SDL_Texture*)*4);
+    rPlayer->swordSprites[0]=rPlayer->sword->sprite;
+    rPlayer->swordSprites[1]=createImage("ressources/images/sword_left.png",screen);
+    rPlayer->swordSprites[2]=createImage("ressources/images/sword_right.png",screen);
+    rPlayer->swordSprites[3]=createImage("ressources/images/sword_up.png",screen);
+
+    return rPlayer;
 }
 
 void moveEntity(SDL_Rect* coord,int floor[nbwTiles][nbhTiles],int x,int y){
@@ -70,7 +79,7 @@ Ennemie_List* createList_Ennemie(){
     return liste;
 }
 
-void ajouterList_Ennemie(Ennemie_List* liste,int type,int health,int vSpeed,int hSpeed,int damage,int x,int y,int w,int h, char* spriteL,SDL_Renderer* renderer){
+void ajouterList_Ennemie(Ennemie_List* liste,int type,int health,int vSpeed,int hSpeed,int damage,int x,int y,int w,int h){
     Ennemie* nEnnemie = malloc(sizeof(Ennemie));
     if(nEnnemie==NULL)
     {
@@ -82,7 +91,6 @@ void ajouterList_Ennemie(Ennemie_List* liste,int type,int health,int vSpeed,int 
     nEnnemie->e.physic.y=y;
     nEnnemie->e.physic.w=w;
     nEnnemie->e.physic.h=h;
-    nEnnemie->e.sprite=createImage(spriteL,renderer);
     nEnnemie->suivant=liste->premier;
     nEnnemie->vSpeed=vSpeed;
     nEnnemie->hSpeed=hSpeed;
@@ -109,9 +117,6 @@ Floor* createEmptyFloor(SDL_Renderer* screen,int id){
     return rEtage;
 }
 
-void retireEnnemie(){
-}
-
 void makeRoomTiles(Room* salle){
         FILE * roomFile;
         char filename[100];
@@ -136,7 +141,37 @@ void makeRoomTiles(Room* salle){
                 for(y = 0; y<nbwTiles;y++){
                     (salle->tiles)[y][i]=tileValues[y]-48;
                 }
-                y=0;
+        }
+        SDL_Log("Ouga %d",i);
+        i=0;
+        (salle->ennemies)=createList_Ennemie();
+        while(!feof(roomFile)){
+            SDL_Log("Asses ");
+            tileValues = fgets(tileValues,nbwTiles+2,roomFile);
+            SDL_Log("%s",tileValues);
+            SDL_Log("Asses");
+            for(y = 0; y<nbwTiles;y++){
+                switch(tileValues[y]-48){
+                    case 1 :
+                            SDL_Log("Asses");
+                            ajouterList_Ennemie(salle->ennemies,1,1,4,4,1,y*(window_width/nbwTiles)+((window_width/nbwTiles)/2)-25,i*(window_height/nbhTiles)+((window_height/nbhTiles)/2)-25,50,50);
+                            SDL_Log("x : %d y : %d",y*(window_width/nbwTiles),i*(window_height/nbhTiles));
+                    break;
+                    case 2 :
+                            ajouterList_Ennemie(salle->ennemies,2,1,2,2,1,y*(window_width/nbwTiles)+((window_width/nbwTiles)/2)-25,i*(window_height/nbhTiles)+((window_height/nbhTiles)/2)-25,50,50);
+                            SDL_Log("x : %d y : %d",y*(window_width/nbwTiles),i*(window_height/nbhTiles));
+                    break;
+                    case 3 :
+                        ajouterList_Ennemie(salle->ennemies,3,1,0,0,1,y*(window_width/nbwTiles)+((window_width/nbwTiles)/2)-25,i*(window_height/nbhTiles)+((window_height/nbhTiles)/2)-25,50,50);
+                        SDL_Log("x : %d y : %d",y*(window_width/nbwTiles),i*(window_height/nbhTiles));
+                    break;
+                    case 4 :
+                        ajouterList_Ennemie(salle->ennemies,4,1,1,1,1,y*(window_width/nbwTiles)+((window_width/nbwTiles)/2)-25,i*(window_height/nbhTiles)+((window_height/nbhTiles)/2)-25,50,50);
+                        SDL_Log("x : %d y : %d",y*(window_width/nbwTiles),i*(window_height/nbhTiles));
+                    break;
+                }
+            }
+            i++;
         }
         free(tileValues);
 }
@@ -168,7 +203,9 @@ Room* createFloor(int property,Room* north,Room* south,Room* east,Room* west,sta
         }
     }
     //Genérationn tiles de la salle
+    rRoom->ennemies=NULL;
     makeRoomTiles(rRoom);
+    SDL_Log("zea%p",rRoom->ennemies->premier);
     //Generation des portes
     if(north!=NULL){
         rRoom->north=north;
@@ -343,7 +380,7 @@ Room* createFloor(int property,Room* north,Room* south,Room* east,Room* west,sta
         }
         }
     }
-    rRoom->ennemies=NULL;
+    SDL_Log("%p",rRoom->ennemies->premier);
     return rRoom;
 }
 
@@ -383,18 +420,22 @@ void moveMobCharging(Player* joueur,Ennemie* ennemie){
     if(((midPlayer.x>=ennemie->e.physic.x)&&(midPlayer.x<=ennemie->e.physic.x+ennemie->e.physic.w))&&(ennemie->state!=1)){
             if(ennemie->e.physic.y>joueur->physic.y){
                 ennemie->vSpeed=-5;
+                ennemie->hSpeed=0;
             }
             else{
                 ennemie->vSpeed=5;
+                ennemie->hSpeed=0;
             }
             ennemie->state=1;
        }
     else if(((midPlayer.y>=ennemie->e.physic.y)&&(midPlayer.y<=ennemie->e.physic.y+ennemie->e.physic.h))&&(ennemie->state!=1)){
             if(ennemie->e.physic.x>joueur->physic.x){
+                ennemie->vSpeed=0;
                 ennemie->hSpeed=-5;
                 SDL_Log("A");
             }
             else{
+                ennemie->vSpeed=0;
                 ennemie->hSpeed=5;
                 SDL_Log("B");
             }
@@ -453,6 +494,31 @@ int entityCollide(SDL_Rect a, SDL_Rect b){
     }
 }
 
+int makeShooterShoot(Ennemie_List* ennemies,Ennemie* ennemie,Player* joueur){
+    float vDifference;
+    float hDifference;
+    float hRatio;
+    float vRatio;
+    if(ennemie->state>=60){
+        vDifference=joueur->physic.y-ennemie->e.physic.y;
+        hDifference=joueur->physic.x-ennemie->e.physic.x;
+        if((vDifference!=0)||(hDifference!=0)){
+            hRatio=hDifference/(vAbsolue(vDifference)+vAbsolue(hDifference));
+            vRatio=vDifference/(vAbsolue(vDifference)+vAbsolue(hDifference));
+        }
+        ajouterList_Ennemie(ennemies,5,1,round(5*vRatio),round(5*hRatio),1,ennemie->e.physic.x+((ennemie->e.physic.w)/2),(ennemie->e.physic.y+((ennemie->e.physic.h))/2),25,25);
+        ennemie->state=0;
+    }
+    else{
+        ennemie->state=ennemie->state+1;
+    }
+}
+
+void moveBullets(Ennemie* ennemie){
+    ennemie->e.physic.x+=ennemie->hSpeed;
+    ennemie->e.physic.y+=ennemie->vSpeed;
+}
+
 int isCollidingWithLayout(int floor[nbwTiles][nbhTiles],SDL_Rect Pos){
             if((floor[((Pos.x)/(window_width/nbwTiles))][((Pos.y)/(window_height/nbhTiles))]==0)&&
                ((floor[((Pos.x+Pos.w-4)/(window_width/nbwTiles))][((Pos.y+Pos.h-4)/(window_height/nbhTiles))]==0))&&
@@ -464,4 +530,115 @@ int isCollidingWithLayout(int floor[nbwTiles][nbhTiles],SDL_Rect Pos){
             else{
                 return 1;
             }
+}
+
+SDL_Texture** createEnnemiesSpritesList(SDL_Renderer* screen){
+    SDL_Texture** rEnnemiesSpritesList = malloc(sizeof(SDL_Texture*)*nbennemies);
+    rEnnemiesSpritesList[0]=createImage("ressources/images/bat.png",screen);
+    rEnnemiesSpritesList[1]=createImage("ressources/images/red_bat.png",screen);
+    rEnnemiesSpritesList[2]=createImage("ressources/images/taurus_bat.png",screen);
+    rEnnemiesSpritesList[3]=createImage("ressources/images/shooter_bat.png",screen);
+    rEnnemiesSpritesList[4]=createImage("ressources/images/bullet.png",screen);
+    return rEnnemiesSpritesList;
+}
+
+void attackPlayer(Player* joueur,Ennemie_List* ennemies,int floor[nbwTiles][nbhTiles]){
+    joueur->attacking--;
+    joueur->sword->sprite=joueur->swordSprites[joueur->facing-1];
+    SDL_Point coordPic;
+    switch(joueur->facing){
+        case 1:
+             joueur->sword->physic.h=50;
+             joueur->sword->physic.w=20;
+             joueur->sword->physic.x=joueur->physic.x+((joueur->physic.w)/2);
+             joueur->sword->physic.y=joueur->physic.y+joueur->physic.h;
+             coordPic.x=joueur->sword->physic.x+(joueur->sword->physic.w/2);
+             coordPic.y=joueur->sword->physic.y+joueur->sword->physic.h;
+        break;
+        case 2:
+             joueur->sword->physic.h=20;
+             joueur->sword->physic.w=50;
+             joueur->sword->physic.x=joueur->physic.x-joueur->sword->physic.w;
+             joueur->sword->physic.y=joueur->physic.y+(2*(joueur->physic.h)/3);
+             coordPic.x=joueur->sword->physic.x;
+             coordPic.y=joueur->sword->physic.y+(joueur->sword->physic.h/2);
+        break;
+        case 3:
+             joueur->sword->physic.h=20;
+             joueur->sword->physic.w=50;
+             joueur->sword->physic.x=joueur->physic.x+joueur->physic.w;
+             joueur->sword->physic.y=joueur->physic.y+(2*(joueur->physic.h)/3);
+             coordPic.x=joueur->sword->physic.x+joueur->sword->physic.w;
+             coordPic.y=joueur->sword->physic.y+(joueur->sword->physic.h/2);
+        break;
+        case 4:
+             joueur->sword->physic.h=50;
+             joueur->sword->physic.w=20;
+             joueur->sword->physic.x=joueur->physic.x+((joueur->physic.w)/2);
+             joueur->sword->physic.y=joueur->physic.y-joueur->sword->physic.h;
+             coordPic.x=joueur->sword->physic.x+(joueur->sword->physic.w/2);
+             coordPic.y=joueur->sword->physic.y;
+             SDL_Log("A");
+        break;
+    }
+    if((floor[((coordPic.x)/(window_width/nbwTiles))][((coordPic.y)/(window_height/nbhTiles))]==1)){
+        floor[((coordPic.x)/(window_width/nbwTiles))][((coordPic.y)/(window_height/nbhTiles))]=0;
+    }
+    Ennemie* cEnnemie = ennemies->premier;
+    Ennemie* preEnnemie = NULL;
+    while(cEnnemie!=NULL){
+        if(entityCollide(joueur->sword->physic,cEnnemie->e.physic)){
+            retireFromList(ennemies,cEnnemie,preEnnemie);
+        }
+        preEnnemie=cEnnemie;
+        cEnnemie=cEnnemie->suivant;
+    }
+}
+
+void moveEnnemies(Ennemie_List* ennemies,Player* player,int floor[nbwTiles][nbhTiles]){
+    Ennemie* cEnnemie = ennemies->premier;
+    while(cEnnemie!=NULL){
+        switch(cEnnemie->type){
+            case 1 :
+                moveMobTowardPlayer(player,cEnnemie);
+            break;
+            case 2 :
+                moveMobTowardPlayer(player,cEnnemie);
+            break;
+            case 3 :
+                moveMobCharging(player,cEnnemie);
+            break;
+            case 4 :
+                makeShooterShoot(ennemies,cEnnemie,player);
+            break;
+            case 5 :
+                moveBullets(cEnnemie);
+                SDL_Log("Fiou");
+            break;
+        }
+        cEnnemie=cEnnemie->suivant;
+    }
+}
+
+void retireFromList(Ennemie_List* ennemies,Ennemie* adEnnemie,Ennemie* preEnnemie){
+    if(ennemies->premier==adEnnemie){
+        ennemies->premier=adEnnemie->suivant;
+        free(adEnnemie);
+    }
+    else{
+        preEnnemie->suivant=adEnnemie->suivant;
+        free(adEnnemie);
+    }
+}
+
+void ennemiesCollideWithPlayer(Ennemie_List* ennemies,Player* joueur){
+    Ennemie* cEnnemie = ennemies->premier;
+    Ennemie* preEnnemie = NULL;
+    while(cEnnemie!=NULL){
+        if(entityCollide(cEnnemie->e.physic,joueur->physic)){
+            retireFromList(ennemies,cEnnemie,preEnnemie);
+        }
+        preEnnemie=cEnnemie;
+        cEnnemie=cEnnemie->suivant;
+    }
 }

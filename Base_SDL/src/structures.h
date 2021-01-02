@@ -16,6 +16,7 @@
 #define nbCommonRoom 8
 #define nbBossRoom 1
 #define baseHealth 6
+#define nbennemies 5
 
 struct entity {
     SDL_Texture* sprite;
@@ -43,8 +44,11 @@ struct ennemie{
 struct player{
     SDL_Texture** sprites;
     SDL_Rect physic;
+    Entity* sword;
+    SDL_Texture** swordSprites;
     int health;
     int facing;
+    int attacking;
 };
 typedef struct player Player;
 
