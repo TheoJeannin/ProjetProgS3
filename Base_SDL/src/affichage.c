@@ -70,6 +70,12 @@ void printEnnemies(SDL_Renderer* screen,Ennemie_List* list,SDL_Texture** listSpr
             case 5:
                 SDL_RenderCopy(screen,listSprites[4],NULL,&(cEnnemie->e.physic));
             break;
+            case 6:
+                SDL_RenderCopy(screen,listSprites[5],NULL,&(cEnnemie->e.physic));
+            break;
+            case 7:
+                SDL_RenderCopy(screen,listSprites[6],NULL,&(cEnnemie->e.physic));
+            break;
             }
             cEnnemie=cEnnemie->suivant;
         }

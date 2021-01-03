@@ -16,7 +16,7 @@
 #define nbCommonRoom 8
 #define nbBossRoom 1
 #define baseHealth 6
-#define nbennemies 5
+#define nbennemies 6
 
 struct entity {
     SDL_Texture* sprite;
@@ -30,10 +30,13 @@ struct ennemie_list {
 };
 typedef struct ennemie_list Ennemie_List;
 
+typedef struct ennemie Ennemie;
 struct ennemie{
-    Ennemie_List* suivant;
+    Ennemie* suivant;
+    Ennemie* precedent;
     int type;
     int health;
+    int maxHealth;
     int vSpeed;
     int hSpeed;
     int state;
@@ -68,6 +71,8 @@ struct floor{
     int id;
     Room* start;
     SDL_Texture** tiles_sprites;
+    SDL_Texture** entity_sprites;
+    Room* cRoom;
 };
 typedef struct floor Floor;
 

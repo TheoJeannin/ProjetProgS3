@@ -4,12 +4,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <SDL2/SDL_image.h>
+#include <math.h>
 #include "extensionsdl.h"
 #include "structures.h"
+#include "logique.h"
 
 Entity* createEntity(SDL_Renderer* screen,const char *cheminSprite,int x,int y,int w,int h){
     Entity* rEntity = malloc(sizeof(Entity));
-    rEntity->sprite=createImage(cheminSprite,screen);
+    rEntity->sprite = createImage(cheminSprite,screen);
     rEntity->physic.x=x;
     rEntity->physic.y=y;
     if(w==-1){ //Si -1 est fournit en parametre on conserve la largeur de base de l'image
@@ -25,6 +27,19 @@ Entity* createEntity(SDL_Renderer* screen,const char *cheminSprite,int x,int y,i
             rEntity->physic.h=h;
     }
     return rEntity;
+}
+
+
+SDL_Texture** createEnnemiesSpritesList(SDL_Renderer* screen){
+    SDL_Texture** rEnnemiesSpritesList = malloc(sizeof(SDL_Texture*)*nbennemies);
+    rEnnemiesSpritesList[0]=createImage("ressources/images/bat.png",screen);
+    rEnnemiesSpritesList[1]=createImage("ressources/images/red_bat.png",screen);
+    rEnnemiesSpritesList[2]=createImage("ressources/images/taurus_bat.png",screen);
+    rEnnemiesSpritesList[3]=createImage("ressources/images/shooter_bat.png",screen);
+    rEnnemiesSpritesList[4]=createImage("ressources/images/bullet.png",screen);
+    rEnnemiesSpritesList[5]=createImage("ressources/images/boot.png",screen);
+    rEnnemiesSpritesList[6]=createImage("ressources/images/heartplus.png",screen);
+    return rEnnemiesSpritesList;
 }
 
 Player* createPlayer(SDL_Renderer* screen,int x,int y,int w,int h){
@@ -47,7 +62,6 @@ Player* createPlayer(SDL_Renderer* screen,int x,int y,int w,int h){
     rPlayer->swordSprites[1]=createImage("ressources/images/sword_left.png",screen);
     rPlayer->swordSprites[2]=createImage("ressources/images/sword_right.png",screen);
     rPlayer->swordSprites[3]=createImage("ressources/images/sword_up.png",screen);
-
     return rPlayer;
 }
 
@@ -80,6 +94,9 @@ Ennemie_List* createList_Ennemie(){
 }
 
 void ajouterList_Ennemie(Ennemie_List* liste,int type,int health,int vSpeed,int hSpeed,int damage,int x,int y,int w,int h){
+    static int s = 0;
+    s++;
+    SDL_Log("S:%d",s);
     Ennemie* nEnnemie = malloc(sizeof(Ennemie));
     if(nEnnemie==NULL)
     {
@@ -91,97 +108,83 @@ void ajouterList_Ennemie(Ennemie_List* liste,int type,int health,int vSpeed,int 
     nEnnemie->e.physic.y=y;
     nEnnemie->e.physic.w=w;
     nEnnemie->e.physic.h=h;
+    nEnnemie->precedent=NULL;
     nEnnemie->suivant=liste->premier;
+    if(liste->premier!=NULL){
+        nEnnemie->suivant->precedent=nEnnemie;
+    }
     nEnnemie->vSpeed=vSpeed;
     nEnnemie->hSpeed=hSpeed;
     nEnnemie->state=0;
     liste->premier=nEnnemie;
 }
 
-Floor* createEmptyFloor(SDL_Renderer* screen,int id){
-    int i = 0;
-    int y = 0;
-    Floor* rEtage = malloc(sizeof(Floor));
-    rEtage->id=0;
-    rEtage->start=NULL;
-    rEtage->tiles_sprites=malloc(sizeof(int)*nbTilesText);
-    rEtage->tiles_sprites[0]=createImage("ressources/images/floor_texture.png",screen); //Chargement texture sol
-    rEtage->tiles_sprites[1]=createImage("ressources/images/crackeling_wall.png",screen); //Chargement texture rocher
-    rEtage->tiles_sprites[2]=createImage("ressources/images/wall_texture.png",screen);
-    rEtage->tiles_sprites[3]=createImage("ressources/images/treasure_room_floor.png",screen);
-    rEtage->tiles_sprites[4]=createImage("ressources/images/treasure_room_wall.png",screen);
-    rEtage->tiles_sprites[5]=createImage("ressources/images/boss_room_floor.png",screen);
-    rEtage->tiles_sprites[6]=createImage("ressources/images/boss_room_wall.png",screen);
-    rEtage->tiles_sprites[7]=createImage("ressources/images/hole.png",screen);
-    rEtage->tiles_sprites[8]=createImage("ressources/images/cold_floor.png",screen);
-    return rEtage;
+
+void freeFloor(Floor* Etage){
+    freeSpriteArray(Etage->tiles_sprites,nbTilesText);
+    freeSpriteArray(Etage->entity_sprites,nbennemies);
+    freeRooms(Etage->start,5);
 }
 
-void makeRoomTiles(Room* salle){
-        FILE * roomFile;
-        char filename[100];
-        char* tileValues = malloc(sizeof(char)*(nbwTiles+2));
-        int i = 0;
-        int y = 0;
-        switch(salle->property){
-            case 0:
-                sprintf(filename,"ressources/rooms/common/%d.txt",4);
-            break;
-            case 1:
-                sprintf(filename,"ressources/rooms/treasure/%d.txt",randomIntBetween(1,nbTreasureRoom));
-            break;
-            case 2:
-                sprintf(filename,"ressources/rooms/boss/%d.txt",randomIntBetween(1,nbBossRoom));
-            break;
-        }
-        roomFile = fopen(filename,"r");
-        for(i = 0; i<nbhTiles; i++){
-                tileValues = fgets(tileValues,nbwTiles+2,roomFile);
-                SDL_Log(tileValues);
-                for(y = 0; y<nbwTiles;y++){
-                    (salle->tiles)[y][i]=tileValues[y]-48;
-                }
-        }
-        SDL_Log("Ouga %d",i);
-        i=0;
-        (salle->ennemies)=createList_Ennemie();
-        while(!feof(roomFile)){
-            SDL_Log("Asses ");
-            tileValues = fgets(tileValues,nbwTiles+2,roomFile);
-            SDL_Log("%s",tileValues);
-            SDL_Log("Asses");
-            for(y = 0; y<nbwTiles;y++){
-                switch(tileValues[y]-48){
-                    case 1 :
-                            SDL_Log("Asses");
-                            ajouterList_Ennemie(salle->ennemies,1,1,4,4,1,y*(window_width/nbwTiles)+((window_width/nbwTiles)/2)-25,i*(window_height/nbhTiles)+((window_height/nbhTiles)/2)-25,50,50);
-                            SDL_Log("x : %d y : %d",y*(window_width/nbwTiles),i*(window_height/nbhTiles));
-                    break;
-                    case 2 :
-                            ajouterList_Ennemie(salle->ennemies,2,1,2,2,1,y*(window_width/nbwTiles)+((window_width/nbwTiles)/2)-25,i*(window_height/nbhTiles)+((window_height/nbhTiles)/2)-25,50,50);
-                            SDL_Log("x : %d y : %d",y*(window_width/nbwTiles),i*(window_height/nbhTiles));
-                    break;
-                    case 3 :
-                        ajouterList_Ennemie(salle->ennemies,3,1,0,0,1,y*(window_width/nbwTiles)+((window_width/nbwTiles)/2)-25,i*(window_height/nbhTiles)+((window_height/nbhTiles)/2)-25,50,50);
-                        SDL_Log("x : %d y : %d",y*(window_width/nbwTiles),i*(window_height/nbhTiles));
-                    break;
-                    case 4 :
-                        ajouterList_Ennemie(salle->ennemies,4,1,1,1,1,y*(window_width/nbwTiles)+((window_width/nbwTiles)/2)-25,i*(window_height/nbhTiles)+((window_height/nbhTiles)/2)-25,50,50);
-                        SDL_Log("x : %d y : %d",y*(window_width/nbwTiles),i*(window_height/nbhTiles));
-                    break;
-                }
-            }
-            i++;
-        }
-        free(tileValues);
+void freeSpriteArray(SDL_Texture** EntitiesSprites,int nbI){
+    int i =0;
+    for(i=0;i<nbI;i++){
+        SDL_DestroyTexture(EntitiesSprites[i]);
+    }
 }
 
-Room* createFloor(int property,Room* north,Room* south,Room* east,Room* west,statFloorHolder stats, int nbRooms,int nbSide){
+void freePlayer(Player* player){
+    freeSpriteArray(player->sprites,4);
+    freeSpriteArray(player->sprites,4);
+    free(player->sword);
+    free(player);
+}
+
+void freeEnnemies(Ennemie_List* ennemies){
+    Ennemie* cEnnemie;
+    cEnnemie=ennemies->premier;
+    Ennemie* fEnnemie = cEnnemie;
+    while(cEnnemie!=NULL){
+        fEnnemie=cEnnemie;
+        cEnnemie=cEnnemie->suivant;
+        free(fEnnemie);
+    }
+    free(ennemies);
+}
+
+void freeRooms(Room* sRoom,int direction){
+    static int i = 0;
+    i++;
+    SDL_Log("%d",i);
+    freeEnnemies(sRoom->ennemies);
+    if((((sRoom->north!=NULL)+(sRoom->east!=NULL)+(sRoom->west!=NULL)+(sRoom->south!=NULL))==1)&&(direction!=5)){
+        SDL_Log("cul");
+        free(sRoom);
+    }else{
+        if((sRoom->east!=NULL)&&(direction!=1)){
+            SDL_Log("east");
+            freeRooms(sRoom->east,2);
+        }
+        if((sRoom->west!=NULL)&&(direction!=2)){
+            SDL_Log("west");
+            freeRooms(sRoom->west,1);
+        }
+        if((sRoom->south!=NULL)&&(direction!=3)){
+            SDL_Log("south");
+            freeRooms(sRoom->south,4);
+        }
+        if((sRoom->north!=NULL)&&(direction!=4)){
+            SDL_Log("north");
+            freeRooms(sRoom->north,3);
+        }
+    }
+    free(sRoom);
+}
+
+Room* createFloorRooms(int property,Room* north,Room* south,Room* east,Room* west,statFloorHolder stats, int nbRooms,int nbSide){
     Room* rRoom=malloc(sizeof(Room));
     static int id = -1;
     id++;
-    int x = 0;
-    int y = 0;
     int s = 0;
     int nextProperty = 0;
     rRoom->property=property;
@@ -202,6 +205,10 @@ Room* createFloor(int property,Room* north,Room* south,Room* east,Room* west,sta
             stats.pEmb+=20;
         }
     }
+    rRoom->east=east;
+    rRoom->west=west;
+    rRoom->south=south;
+    rRoom->north=north;
     //Genérationn tiles de la salle
     rRoom->ennemies=NULL;
     makeRoomTiles(rRoom);
@@ -262,7 +269,7 @@ Room* createFloor(int property,Room* north,Room* south,Room* east,Room* west,sta
                 stats.pSouth=10;
                 stats.pNorth=10;
             }
-            rRoom->east=createFloor(nextProperty,NULL,NULL,NULL,rRoom,stats,nbRooms-1,nbSide);
+            rRoom->east=createFloorRooms(nextProperty,NULL,NULL,NULL,rRoom,stats,nbRooms-1,nbSide);
             stats.pEast=0;
             stats.pSouth=50;
             stats.pNorth=50;
@@ -282,7 +289,7 @@ Room* createFloor(int property,Room* north,Room* south,Room* east,Room* west,sta
                 stats.pSouth=10;
                 stats.pNorth=10;
             }
-            rRoom->west=createFloor(nextProperty,NULL,NULL,rRoom,NULL,stats,nbRooms-1,nbSide);
+            rRoom->west=createFloorRooms(nextProperty,NULL,NULL,rRoom,NULL,stats,nbRooms-1,nbSide);
             stats.pWest=0;
             stats.pSouth=50;
             stats.pNorth=50;
@@ -302,7 +309,7 @@ Room* createFloor(int property,Room* north,Room* south,Room* east,Room* west,sta
                 stats.pSouth=80;
                 stats.pNorth=0;
             }
-            rRoom->south=createFloor(nextProperty,rRoom,NULL,NULL,NULL,stats,nbRooms-1,nbSide);
+            rRoom->south=createFloorRooms(nextProperty,rRoom,NULL,NULL,NULL,stats,nbRooms-1,nbSide);
             stats.pSouth=0;
             stats.pEast=50;
             stats.pWest=50;
@@ -322,7 +329,7 @@ Room* createFloor(int property,Room* north,Room* south,Room* east,Room* west,sta
                 stats.pSouth=0;
                 stats.pNorth=80;
             }
-            rRoom->north=createFloor(nextProperty,NULL,rRoom,NULL,NULL,stats,nbRooms-1,nbSide);
+            rRoom->north=createFloorRooms(nextProperty,NULL,rRoom,NULL,NULL,stats,nbRooms-1,nbSide);
             stats.pNorth=0;
             stats.pEast=50;
             stats.pWest=50;
@@ -346,7 +353,7 @@ Room* createFloor(int property,Room* north,Room* south,Room* east,Room* west,sta
             stats.pWest=0;
             stats.pSouth=10;
             stats.pNorth=10;
-            rRoom->east=createFloor(nextProperty,NULL,NULL,NULL,rRoom,stats,randomIntBetween(2,size_emb),0);
+            rRoom->east=createFloorRooms(nextProperty,NULL,NULL,NULL,rRoom,stats,randomIntBetween(2,size_emb),0);
         }else if((stats.pWest+stats.pEast>s)&&(rRoom->west==NULL)){
             (rRoom->tiles)[nbwTiles-1][nbhTiles/2]=0;
             (rRoom->tiles)[nbwTiles-1][nbhTiles/2-1]=0;
@@ -356,7 +363,7 @@ Room* createFloor(int property,Room* north,Room* south,Room* east,Room* west,sta
             stats.pWest=80;
             stats.pSouth=10;
             stats.pNorth=10;
-            rRoom->west=createFloor(nextProperty,NULL,NULL,rRoom,NULL,stats,randomIntBetween(2,size_emb),0);
+            rRoom->west=createFloorRooms(nextProperty,NULL,NULL,rRoom,NULL,stats,randomIntBetween(2,size_emb),0);
         }else if((stats.pSouth+stats.pWest+stats.pEast>s)&&(rRoom->south==NULL)){
             (rRoom->tiles)[nbwTiles/2][nbhTiles-1]=0;
             (rRoom->tiles)[nbwTiles/2-1][nbhTiles-1]=0;
@@ -366,7 +373,7 @@ Room* createFloor(int property,Room* north,Room* south,Room* east,Room* west,sta
             stats.pWest=10;
             stats.pSouth=80;
             stats.pNorth=0;
-            rRoom->south=createFloor(nextProperty,rRoom,NULL,NULL,NULL,stats,randomIntBetween(2,size_emb),0);
+            rRoom->south=createFloorRooms(nextProperty,rRoom,NULL,NULL,NULL,stats,randomIntBetween(2,size_emb),0);
         }else{
             (rRoom->tiles)[nbwTiles/2][0]=0;
             (rRoom->tiles)[nbwTiles/2-1][0]=0;
@@ -376,12 +383,107 @@ Room* createFloor(int property,Room* north,Room* south,Room* east,Room* west,sta
             stats.pWest=10;
             stats.pSouth=0;
             stats.pNorth=80;
-            rRoom->north=createFloor(nextProperty,NULL,rRoom,NULL,NULL,stats,randomIntBetween(2,size_emb),0);
+            rRoom->north=createFloorRooms(nextProperty,NULL,rRoom,NULL,NULL,stats,randomIntBetween(2,size_emb),0);
         }
         }
     }
     SDL_Log("%p",rRoom->ennemies->premier);
     return rRoom;
+}
+
+Floor* createFloor(SDL_Renderer* screen,int id){
+    Floor* rEtage = malloc(sizeof(Floor));
+    rEtage->id=0;
+    rEtage->tiles_sprites=malloc(sizeof(int)*nbTilesText);
+    rEtage->tiles_sprites[0]=createImage("ressources/images/floor_texture.png",screen); //Chargement texture sol
+    rEtage->tiles_sprites[1]=createImage("ressources/images/crackeling_wall.png",screen); //Chargement texture rocher
+    rEtage->tiles_sprites[2]=createImage("ressources/images/wall_texture.png",screen);
+    rEtage->tiles_sprites[3]=createImage("ressources/images/treasure_room_floor.png",screen);
+    rEtage->tiles_sprites[4]=createImage("ressources/images/treasure_room_wall.png",screen);
+    rEtage->tiles_sprites[5]=createImage("ressources/images/boss_room_floor.png",screen);
+    rEtage->tiles_sprites[6]=createImage("ressources/images/boss_room_wall.png",screen);
+    rEtage->tiles_sprites[7]=createImage("ressources/images/hole.png",screen);
+    rEtage->tiles_sprites[8]=createImage("ressources/images/cold_floor.png",screen);
+    statFloorHolder Stats;
+    Stats.direction='S';
+    Stats.pEast=80;
+    Stats.pWest=10;
+    Stats.pSouth=80;
+    Stats.pNorth=0;
+    Stats.pEmb=40;
+    rEtage->entity_sprites=createEnnemiesSpritesList(screen);
+    rEtage->start=createFloorRooms(0,NULL,NULL,NULL,NULL,Stats,8,2);
+    rEtage->cRoom=rEtage->start;
+    return rEtage;
+}
+
+void makeRoomTiles(Room* salle){
+        FILE * roomFile;
+        char filename[100];
+        char* tileValues = malloc(sizeof(char)*(nbwTiles+2));
+        int i = 0;
+        int y = 0;
+        switch(salle->property){
+            case 0:
+                sprintf(filename,"ressources/rooms/common/%d.txt",4);
+            break;
+            case 1:
+                sprintf(filename,"ressources/rooms/treasure/%d.txt",randomIntBetween(1,nbTreasureRoom));
+            break;
+            case 2:
+                sprintf(filename,"ressources/rooms/boss/%d.txt",randomIntBetween(1,nbBossRoom));
+            break;
+        }
+        roomFile = fopen(filename,"r");
+        for(i = 0; i<nbhTiles; i++){
+                tileValues = fgets(tileValues,nbwTiles+2,roomFile);
+                SDL_Log(tileValues);
+                for(y = 0; y<nbwTiles;y++){
+                    (salle->tiles)[y][i]=tileValues[y]-48;
+                }
+        }
+        SDL_Log("Ouga %d",i);
+        i=0;
+        (salle->ennemies)=createList_Ennemie();
+        while(!feof(roomFile)){
+            SDL_Log("Asses ");
+            tileValues = fgets(tileValues,nbwTiles+2,roomFile);
+            SDL_Log("%s",tileValues);
+            SDL_Log("Asses");
+            for(y = 0; y<nbwTiles;y++){
+                switch(tileValues[y]-48){
+                    case 1 :
+                            SDL_Log("Asses");
+                            ajouterList_Ennemie(salle->ennemies,1,1,4,4,1,y*(window_width/nbwTiles)+((window_width/nbwTiles)/2)-25,i*(window_height/nbhTiles)+((window_height/nbhTiles)/2)-25,50,50);
+                            SDL_Log("x : %d y : %d",y*(window_width/nbwTiles),i*(window_height/nbhTiles));
+                    break;
+                    case 2 :
+                            ajouterList_Ennemie(salle->ennemies,2,1,2,2,1,y*(window_width/nbwTiles)+((window_width/nbwTiles)/2)-25,i*(window_height/nbhTiles)+((window_height/nbhTiles)/2)-25,50,50);
+                            SDL_Log("x : %d y : %d",y*(window_width/nbwTiles),i*(window_height/nbhTiles));
+                    break;
+                    case 3 :
+                        ajouterList_Ennemie(salle->ennemies,3,1,0,0,1,y*(window_width/nbwTiles)+((window_width/nbwTiles)/2)-25,i*(window_height/nbhTiles)+((window_height/nbhTiles)/2)-25,50,50);
+                        SDL_Log("x : %d y : %d",y*(window_width/nbwTiles),i*(window_height/nbhTiles));
+                    break;
+                    case 4 :
+                        ajouterList_Ennemie(salle->ennemies,4,1,1,1,1,y*(window_width/nbwTiles)+((window_width/nbwTiles)/2)-25,i*(window_height/nbhTiles)+((window_height/nbhTiles)/2)-25,50,50);
+                        SDL_Log("x : %d y : %d",y*(window_width/nbwTiles),i*(window_height/nbhTiles));
+                    break;
+                    case 6 :
+                        ajouterList_Ennemie(salle->ennemies,6,0,0,0,0,y*(window_width/nbwTiles)+((window_width/nbwTiles)/2)-25,i*(window_height/nbhTiles)+((window_height/nbhTiles)/2)-25,50,50);
+                        SDL_Log("x : %d y : %d",y*(window_width/nbwTiles),i*(window_height/nbhTiles));
+                        SDL_Log("H");
+                    break;
+                    case 7 :
+                        ajouterList_Ennemie(salle->ennemies,7,0,0,0,0,y*(window_width/nbwTiles)+((window_width/nbwTiles)/2)-25,i*(window_height/nbhTiles)+((window_height/nbhTiles)/2)-25,50,50);
+                        SDL_Log("x : %d y : %d",y*(window_width/nbwTiles),i*(window_height/nbhTiles));
+                        SDL_Log("BOOT");
+                    break;
+                }
+            }
+            i++;
+        }
+        free(tileValues);
 }
 
 int randomIntBetween(int a, int b){
@@ -447,7 +549,7 @@ void moveMobCharging(Player* joueur,Ennemie* ennemie){
         ennemie->e.physic.x+=ennemie->hSpeed;
         ennemie->e.physic.y+=ennemie->vSpeed;
     }
-    else if(ennemie->state=0){
+    else if(ennemie->state==0){
         ennemie->e.physic.x=0;
         ennemie->e.physic.y=0;
     }
@@ -494,7 +596,7 @@ int entityCollide(SDL_Rect a, SDL_Rect b){
     }
 }
 
-int makeShooterShoot(Ennemie_List* ennemies,Ennemie* ennemie,Player* joueur){
+void makeShooterShoot(Ennemie_List* ennemies,Ennemie* ennemie,Player* joueur){
     float vDifference;
     float hDifference;
     float hRatio;
@@ -512,6 +614,24 @@ int makeShooterShoot(Ennemie_List* ennemies,Ennemie* ennemie,Player* joueur){
     else{
         ennemie->state=ennemie->state+1;
     }
+}
+
+
+void travelRoom(Player* player,Floor* Etage){
+        if(((player->physic.x)>=window_width-(player->physic.w)-10)&&((player->facing)==3)){
+            player->physic.x=3;
+            Etage->cRoom=Etage->cRoom->west;
+        }
+        else if(((player->physic.x)<=0)&&((player->facing)==2)){
+            player->physic.x=window_width-(player->physic.w)-10;
+            Etage->cRoom=Etage->cRoom->east;
+        }else if(((player->physic.y)>=window_height-(player->physic.h)-10)&&((player->facing)==1)){
+            player->physic.y=0;
+            Etage->cRoom=Etage->cRoom->south;
+        }else if(((player->physic.y)<=0)&&((player->facing)==4)){
+            player->physic.y=window_height-(player->physic.h)-10;
+            Etage->cRoom=Etage->cRoom->north;
+        }
 }
 
 void moveBullets(Ennemie* ennemie){
@@ -532,16 +652,6 @@ int isCollidingWithLayout(int floor[nbwTiles][nbhTiles],SDL_Rect Pos){
             }
 }
 
-SDL_Texture** createEnnemiesSpritesList(SDL_Renderer* screen){
-    SDL_Texture** rEnnemiesSpritesList = malloc(sizeof(SDL_Texture*)*nbennemies);
-    rEnnemiesSpritesList[0]=createImage("ressources/images/bat.png",screen);
-    rEnnemiesSpritesList[1]=createImage("ressources/images/red_bat.png",screen);
-    rEnnemiesSpritesList[2]=createImage("ressources/images/taurus_bat.png",screen);
-    rEnnemiesSpritesList[3]=createImage("ressources/images/shooter_bat.png",screen);
-    rEnnemiesSpritesList[4]=createImage("ressources/images/bullet.png",screen);
-    return rEnnemiesSpritesList;
-}
-
 void attackPlayer(Player* joueur,Ennemie_List* ennemies,int floor[nbwTiles][nbhTiles]){
     joueur->attacking--;
     joueur->sword->sprite=joueur->swordSprites[joueur->facing-1];
@@ -557,7 +667,7 @@ void attackPlayer(Player* joueur,Ennemie_List* ennemies,int floor[nbwTiles][nbhT
         break;
         case 2:
              joueur->sword->physic.h=20;
-             joueur->sword->physic.w=50;
+             joueur->sword->physic.w=50;SDL_Log("south");
              joueur->sword->physic.x=joueur->physic.x-joueur->sword->physic.w;
              joueur->sword->physic.y=joueur->physic.y+(2*(joueur->physic.h)/3);
              coordPic.x=joueur->sword->physic.x;
@@ -585,13 +695,13 @@ void attackPlayer(Player* joueur,Ennemie_List* ennemies,int floor[nbwTiles][nbhT
         floor[((coordPic.x)/(window_width/nbwTiles))][((coordPic.y)/(window_height/nbhTiles))]=0;
     }
     Ennemie* cEnnemie = ennemies->premier;
-    Ennemie* preEnnemie = NULL;
+    Ennemie* fEnnemie;
     while(cEnnemie!=NULL){
-        if(entityCollide(joueur->sword->physic,cEnnemie->e.physic)){
-            retireFromList(ennemies,cEnnemie,preEnnemie);
-        }
-        preEnnemie=cEnnemie;
+        fEnnemie=cEnnemie;
         cEnnemie=cEnnemie->suivant;
+        if(entityCollide(joueur->sword->physic,fEnnemie->e.physic)){
+            retireFromList(ennemies,fEnnemie);
+        }
     }
 }
 
@@ -608,9 +718,9 @@ void moveEnnemies(Ennemie_List* ennemies,Player* player,int floor[nbwTiles][nbhT
             case 3 :
                 moveMobCharging(player,cEnnemie);
             break;
-            case 4 :
-                makeShooterShoot(ennemies,cEnnemie,player);
-            break;
+            //case 4 :
+                //makeShooterShoot(ennemies,cEnnemie,player);
+            //break;
             case 5 :
                 moveBullets(cEnnemie);
                 SDL_Log("Fiou");
@@ -620,25 +730,32 @@ void moveEnnemies(Ennemie_List* ennemies,Player* player,int floor[nbwTiles][nbhT
     }
 }
 
-void retireFromList(Ennemie_List* ennemies,Ennemie* adEnnemie,Ennemie* preEnnemie){
+void retireFromList(Ennemie_List* ennemies,Ennemie* adEnnemie){
     if(ennemies->premier==adEnnemie){
         ennemies->premier=adEnnemie->suivant;
+        if(ennemies->premier!=NULL){
+            ennemies->premier->precedent=NULL;
+        }
         free(adEnnemie);
+        SDL_Log("A");
     }
     else{
-        preEnnemie->suivant=adEnnemie->suivant;
+        adEnnemie->precedent->suivant=adEnnemie->suivant;
+        if(adEnnemie->suivant!=NULL){
+            adEnnemie->suivant->precedent=adEnnemie->precedent;
+        }
         free(adEnnemie);
     }
 }
 
 void ennemiesCollideWithPlayer(Ennemie_List* ennemies,Player* joueur){
     Ennemie* cEnnemie = ennemies->premier;
-    Ennemie* preEnnemie = NULL;
+    Ennemie* fEnnemie;
     while(cEnnemie!=NULL){
-        if(entityCollide(cEnnemie->e.physic,joueur->physic)){
-            retireFromList(ennemies,cEnnemie,preEnnemie);
-        }
-        preEnnemie=cEnnemie;
+        fEnnemie=cEnnemie;
         cEnnemie=cEnnemie->suivant;
+        if(entityCollide(fEnnemie->e.physic,joueur->physic)){
+            retireFromList(ennemies,fEnnemie);
+        }
     }
 }

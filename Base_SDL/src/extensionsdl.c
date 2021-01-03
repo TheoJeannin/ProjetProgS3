@@ -14,7 +14,9 @@ SDL_Rect makeRect(int x, int y,int w,int h){
 
 SDL_Texture* createImage(const char *cheminFichier,SDL_Renderer* screen){
     SDL_Surface* hSurface = IMG_Load(cheminFichier);
-    return SDL_CreateTextureFromSurface(screen,hSurface);
+    SDL_Texture* rTexture = SDL_CreateTextureFromSurface(screen,hSurface);
+    SDL_FreeSurface(hSurface);
+    return rTexture;
 }
 
 SDL_Point getSizeTexture(SDL_Texture *texture){
