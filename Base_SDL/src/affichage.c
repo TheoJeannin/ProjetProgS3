@@ -6,6 +6,7 @@
 #include "structures.h"
 #include "extensionsdl.h"
 
+//fonction affichant la salle
 void printRoom(SDL_Renderer* screen,Room* room,SDL_Texture** tiles_sprites){
     int x = 0;
     int y = 0;
@@ -50,6 +51,7 @@ void printRoom(SDL_Renderer* screen,Room* room,SDL_Texture** tiles_sprites){
     }
 }
 
+//fonction affichant les ennemies
 void printEnnemies(SDL_Renderer* screen,Ennemie_List* list,SDL_Texture** listSprites){
     if(list!=NULL){
         Ennemie* cEnnemie=list->premier;
@@ -82,6 +84,7 @@ void printEnnemies(SDL_Renderer* screen,Ennemie_List* list,SDL_Texture** listSpr
     }
 }
 
+//Fonction affichant le joueur
 void printPlayer(SDL_Renderer* screen,Player* player){
     SDL_RenderCopy(screen,player->sprites[player->facing-1],NULL,&(player->physic));
     if(player->attacking>=10){

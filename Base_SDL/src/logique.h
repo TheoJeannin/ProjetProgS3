@@ -22,4 +22,8 @@ Player* createPlayer(SDL_Renderer* screen,int x,int y,int w,int h);
 void travelRoom(Player* player,Floor* Etage);
 void attackPlayer(Player* joueur,Ennemie_List* ennemies,int floor[nbwTiles][nbhTiles]);
 void ennemiesCollideWithPlayer(Ennemie_List* ennemies,Player* joueur);
+void freePlayer(Player* player);
+void freeFloor(Floor* Etage);
+void freeSpriteArray(SDL_Texture** EntitiesSprites,int nbI);
+void freeRooms(Room* sRoom,int direction);
 #endif // LOGIQUE_H_INCLUDED

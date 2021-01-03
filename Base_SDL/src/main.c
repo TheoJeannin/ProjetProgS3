@@ -32,9 +32,9 @@ int main(int argc, char *argv[])
     }
     screen = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
     //Initialisation Jeu
-    srand(8);
+    srand(time(NULL));
     Floor* Etage=createFloor(screen,1);
-    Player* player = createPlayer(screen,0,window_width/2,44,70);
+    Player* player = createPlayer(screen,70,window_width/2,44,70);
     //Boucle principale
     while(!terminer){
         SDL_PollEvent( &evenements );
@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
                 terminer = true;
                 break;
                 case SDL_KEYDOWN:
+                    //Gestion des mouvement du joueur
                     switch(evenements.key.keysym.sym)
                     {
                         case SDLK_z:
@@ -71,12 +72,16 @@ int main(int argc, char *argv[])
                         break;
                     }
             }
+        //Changement de salle si le joueur traverse une porte
         travelRoom(player,Etage);
+        //Gestion de l'attaque potentielle du joueur
         if(player->attacking!=0){
             attackPlayer(player,Etage->cRoom->ennemies,Etage->cRoom->tiles);
         }
+        //Gestion des mouvement et collision des ennemies
         ennemiesCollideWithPlayer(Etage->cRoom->ennemies,player);
         moveEnnemies(Etage->cRoom->ennemies,player,Etage->cRoom->tiles);
+        //Affichage
         printRoom(screen,Etage->cRoom,Etage->tiles_sprites);
         printPlayer(screen,player);
         printEnnemies(screen,Etage->cRoom->ennemies,Etage->entity_sprites);
