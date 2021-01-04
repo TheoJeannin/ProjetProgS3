@@ -44,23 +44,22 @@ int main(int argc, char *argv[])
                 terminer = true;
                 break;
                 case SDL_KEYDOWN:
-                    //Gestion des mouvement du joueur
                     switch(evenements.key.keysym.sym)
                     {
                         case SDLK_z:
-                            moveEntity(&(player->physic),Etage->cRoom->tiles,0,-playerSpeed);
+                            moveEntity(&(player->physic),Etage->cRoom->tiles,0,-player->speed);
                             player->facing=4;
                         break;
                         case SDLK_q:
-                            moveEntity(&(player->physic),Etage->cRoom->tiles,-playerSpeed,0);
+                            moveEntity(&(player->physic),Etage->cRoom->tiles,-player->speed,0);
                             player->facing=2;
                         break;
                         case SDLK_s:
-                            moveEntity(&(player->physic),Etage->cRoom->tiles,0,playerSpeed);
+                            moveEntity(&(player->physic),Etage->cRoom->tiles,0,player->speed);
                             player->facing=1;
                         break;
                         case SDLK_d:
-                            moveEntity(&(player->physic),Etage->cRoom->tiles,playerSpeed,0);
+                            moveEntity(&(player->physic),Etage->cRoom->tiles,player->speed,0);
                             player->facing=3;
                         break;
                         case SDLK_ESCAPE:
@@ -72,16 +71,12 @@ int main(int argc, char *argv[])
                         break;
                     }
             }
-        //Changement de salle si le joueur traverse une porte
         travelRoom(player,Etage);
-        //Gestion de l'attaque potentielle du joueur
         if(player->attacking!=0){
             attackPlayer(player,Etage->cRoom->ennemies,Etage->cRoom->tiles);
         }
-        //Gestion des mouvement et collision des ennemies
         ennemiesCollideWithPlayer(Etage->cRoom->ennemies,player);
         moveEnnemies(Etage->cRoom->ennemies,player,Etage->cRoom->tiles);
-        //Affichage
         printRoom(screen,Etage->cRoom,Etage->tiles_sprites);
         printPlayer(screen,player);
         printEnnemies(screen,Etage->cRoom->ennemies,Etage->entity_sprites);

@@ -52,6 +52,7 @@ struct player{
     int health;
     int facing;
     int attacking;
+    int speed;
 };
 typedef struct player Player;
 

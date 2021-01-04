@@ -1,8 +1,0 @@
-Le but du jeu est d'atteindre la fin 
-du niveau en tuant les ennemies à l'aide de son épée.
-Les niveaux son généré aléatoirement à chaque fois que
-le programme est lancé et il est possible de trouvé des 
-objet pour améliorer votre personnage.
-zsqd - se déplacer
-espace - frapper
-echap - quitter

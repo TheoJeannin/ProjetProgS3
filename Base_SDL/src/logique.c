@@ -9,7 +9,6 @@
 #include "structures.h"
 #include "logique.h"
 
-//Fonction créant une entité
 Entity* createEntity(SDL_Renderer* screen,const char *cheminSprite,int x,int y,int w,int h){
     Entity* rEntity = malloc(sizeof(Entity));
     rEntity->sprite = createImage(cheminSprite,screen);
@@ -30,7 +29,7 @@ Entity* createEntity(SDL_Renderer* screen,const char *cheminSprite,int x,int y,i
     return rEntity;
 }
 
-//Fonction créant la liste des sprites servant à afficher les entités
+
 SDL_Texture** createEnnemiesSpritesList(SDL_Renderer* screen){
     SDL_Texture** rEnnemiesSpritesList = malloc(sizeof(SDL_Texture*)*nbennemies);
     rEnnemiesSpritesList[0]=createImage("ressources/images/bat.png",screen);
@@ -43,7 +42,6 @@ SDL_Texture** createEnnemiesSpritesList(SDL_Renderer* screen){
     return rEnnemiesSpritesList;
 }
 
-//Fonction créant le joueur
 Player* createPlayer(SDL_Renderer* screen,int x,int y,int w,int h){
     Player* rPlayer=malloc(sizeof(Player));
     rPlayer->sprites=malloc(sizeof(SDL_Texture*)*4);
@@ -64,10 +62,10 @@ Player* createPlayer(SDL_Renderer* screen,int x,int y,int w,int h){
     rPlayer->swordSprites[1]=createImage("ressources/images/sword_left.png",screen);
     rPlayer->swordSprites[2]=createImage("ressources/images/sword_right.png",screen);
     rPlayer->swordSprites[3]=createImage("ressources/images/sword_up.png",screen);
+    rPlayer->speed=playerSpeed;
     return rPlayer;
 }
 
-//Fonction déplacant une entité et vérifiant si elle entre en collision avec un mur
 void moveEntity(SDL_Rect* coord,int floor[nbwTiles][nbhTiles],int x,int y){
     SDL_Rect nextPos;
     nextPos.x=coord->x+x;
@@ -82,7 +80,6 @@ void moveEntity(SDL_Rect* coord,int floor[nbwTiles][nbhTiles],int x,int y){
             }
 }
 
-//fonction créant la liste des ennemies de la salle
 Ennemie_List* createList_Ennemie(){
     Ennemie_List* liste = malloc(sizeof(Ennemie_List*));
     if (liste == NULL)
@@ -92,7 +89,7 @@ Ennemie_List* createList_Ennemie(){
     liste->premier=NULL;
     return liste;
 }
-//Fonction créant et ajoutant un ennemie dans la liste
+
 void ajouterList_Ennemie(Ennemie_List* liste,int type,int health,int vSpeed,int hSpeed,int damage,int x,int y,int w,int h){
     static int s = 0;
     s++;
@@ -117,6 +114,7 @@ void ajouterList_Ennemie(Ennemie_List* liste,int type,int health,int vSpeed,int 
     nEnnemie->state=0;
     liste->premier=nEnnemie;
 }
+
 
 void freeFloor(Floor* Etage){
     freeSpriteArray(Etage->tiles_sprites,nbTilesText);
@@ -173,7 +171,6 @@ void freeRooms(Room* sRoom,int direction){
     free(sRoom);
 }
 
-//Fonction créant les salles d'un étage de manière procédurale
 Room* createFloorRooms(int property,Room* north,Room* south,Room* east,Room* west,statFloorHolder stats, int nbRooms,int nbSide){
     Room* rRoom=malloc(sizeof(Room));
     static int id = -1;
@@ -370,7 +367,6 @@ Room* createFloorRooms(int property,Room* north,Room* south,Room* east,Room* wes
     return rRoom;
 }
 
-//Fonction créant un étage
 Floor* createFloor(SDL_Renderer* screen,int id){
     Floor* rEtage = malloc(sizeof(Floor));
     rEtage->id=0;
@@ -397,7 +393,6 @@ Floor* createFloor(SDL_Renderer* screen,int id){
     return rEtage;
 }
 
-//Fonction créant le layout et les ennemies d'une salle à partir de fichier txts
 void makeRoomTiles(Room* salle){
         FILE * roomFile;
         char filename[100];
@@ -466,7 +461,6 @@ float vAbsolue(float a){
     }
 }
 
-//Fonction déplaçant un monstre en direction du joueur
 void moveMobTowardPlayer(Player* joueur, Ennemie* ennemie){
     float vDifference;
     float hDifference;
@@ -482,7 +476,6 @@ void moveMobTowardPlayer(Player* joueur, Ennemie* ennemie){
     }
 }
 
-//Fonction faisant charger un monstre sur le joueur si celui ci fait face à lui
 void moveMobCharging(Player* joueur,Ennemie* ennemie){
     SDL_Point midPlayer;
     midPlayer.x= joueur->physic.x+(joueur->physic.w/2);
@@ -522,7 +515,6 @@ void moveMobCharging(Player* joueur,Ennemie* ennemie){
     }
 }
 
-//Fonction faisant marcher un mob dans une direction jusqu'à ce qu'il touche un mur, il change alors de direction aléatoirement
 void walkTurnObstacle(int floor[nbwTiles][nbhTiles],Ennemie* ennemie){
     SDL_Rect nextPos;
     nextPos.x=ennemie->e.physic.x+ennemie->hSpeed;
@@ -554,7 +546,6 @@ void walkTurnObstacle(int floor[nbwTiles][nbhTiles],Ennemie* ennemie){
     }
 }
 
-//Fonction renvoyant un si jamais les deux rectangle sont en collison
 int entityCollide(SDL_Rect a, SDL_Rect b){
     if (a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.h + a.y > b.y) {
         return 1;
@@ -564,7 +555,6 @@ int entityCollide(SDL_Rect a, SDL_Rect b){
     }
 }
 
-//fonction faisant tirer les tourelles sur le joueur
 void makeShooterShoot(Ennemie_List* ennemies,Ennemie* ennemie,Player* joueur){
     float vDifference;
     float hDifference;
@@ -585,7 +575,7 @@ void makeShooterShoot(Ennemie_List* ennemies,Ennemie* ennemie,Player* joueur){
     }
 }
 
-//Fonction de déplacement entre les salles
+
 void travelRoom(Player* player,Floor* Etage){
         if(((player->physic.x)>=window_width-(player->physic.w)-10)&&((player->facing)==3)){
             player->physic.x=3;
@@ -603,13 +593,11 @@ void travelRoom(Player* player,Floor* Etage){
         }
 }
 
-//Fonction déplaceant les projectiles des tourelles
 void moveBullets(Ennemie* ennemie){
     ennemie->e.physic.x+=ennemie->hSpeed;
     ennemie->e.physic.y+=ennemie->vSpeed;
 }
 
-//Fonction vérifier si une position entre en collision avec le décor
 int isCollidingWithLayout(int floor[nbwTiles][nbhTiles],SDL_Rect Pos){
             if((floor[((Pos.x)/(window_width/nbwTiles))][((Pos.y)/(window_height/nbhTiles))]==0)&&
                ((floor[((Pos.x+Pos.w-4)/(window_width/nbwTiles))][((Pos.y+Pos.h-4)/(window_height/nbhTiles))]==0))&&
@@ -623,7 +611,6 @@ int isCollidingWithLayout(int floor[nbwTiles][nbhTiles],SDL_Rect Pos){
             }
 }
 
-//Fonction gérant l'attaque du joueur avec l'épée
 void attackPlayer(Player* joueur,Ennemie_List* ennemies,int floor[nbwTiles][nbhTiles]){
     joueur->attacking--;
     joueur->sword->sprite=joueur->swordSprites[joueur->facing-1];
@@ -676,7 +663,6 @@ void attackPlayer(Player* joueur,Ennemie_List* ennemies,int floor[nbwTiles][nbhT
     }
 }
 
-//Fonction gérant les différents déplacement des ennemies
 void moveEnnemies(Ennemie_List* ennemies,Player* player,int floor[nbwTiles][nbhTiles]){
     Ennemie* cEnnemie = ennemies->premier;
     while(cEnnemie!=NULL){
@@ -701,7 +687,6 @@ void moveEnnemies(Ennemie_List* ennemies,Player* player,int floor[nbwTiles][nbhT
     }
 }
 
-//Supprime un ennemie de la liste des ennemies
 void retireFromList(Ennemie_List* ennemies,Ennemie* adEnnemie){
     if(ennemies->premier==adEnnemie){
         ennemies->premier=adEnnemie->suivant;
@@ -719,7 +704,6 @@ void retireFromList(Ennemie_List* ennemies,Ennemie* adEnnemie){
     }
 }
 
-//Function gérant la collision entre le joueur et les ennemies
 void ennemiesCollideWithPlayer(Ennemie_List* ennemies,Player* joueur){
     Ennemie* cEnnemie = ennemies->premier;
     Ennemie* fEnnemie;
@@ -727,6 +711,9 @@ void ennemiesCollideWithPlayer(Ennemie_List* ennemies,Player* joueur){
         fEnnemie=cEnnemie;
         cEnnemie=cEnnemie->suivant;
         if(entityCollide(fEnnemie->e.physic,joueur->physic)){
+            if(fEnnemie->type==5){
+                joueur->speed+=1;
+            }
             retireFromList(ennemies,fEnnemie);
         }
     }

@@ -9,7 +9,7 @@ LIBS = -lSDL2 -lSDL2_image
 EXEC = main
 
 #Modifier les sources :
-SRC =  Base_SDL/src/extensionsdl.c Base_SDL/src/affichage.c Base_SDL/src/logique.c Base_SDL/src/main.c
+SRC = Base_SDL/src/extensionsdl.c Base_SDL/src/affichage.c Base_SDL/src/logique.c  Base_SDL/src/main.c
 OBJ = $(SRC:.c=.o)
 
 
@@ -19,7 +19,7 @@ main: $(OBJ)
 	@$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(IFLAGS) $(LIBS) -lm
 
 %.o: %.c
-	@$(CC) -o $@ $^ $(LDFLAGS) $(IFLAGS) $(LIBS) -lm
+	@$(CC) -o $@ $^ $(LDFLAGS) $(IFLAGS) $(LIBS)-lm
 
 clean:
 	@rm -rf *.o
