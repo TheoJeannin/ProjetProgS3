@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
         printPlayer(screen,player);
         printEnnemies(screen,Etage->cRoom->ennemies,Etage->entity_sprites);
         SDL_RenderPresent(screen);
-        delta=(time-SDL_GetTicks());
+        delta=(timer-SDL_GetTicks());
         if(18>delta){
             SDL_Delay(18-(timer-SDL_GetTicks()));
         }
