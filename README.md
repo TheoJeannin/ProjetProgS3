@@ -36,6 +36,19 @@ Les salles contiendraient donc des ennemis, des obstacles et des objets que nous
 -Recherche sur les moyens de sauvegarde de salle du jeu à l'aide d'un fichier  
 -Réécriture complète du Makefile pour la clareté et de la correction d'erreurs et ajout de SDL_image dedans
 
+### Semaine 6  
+-Ajout du mouvement des ennemies  
+-Ajout du changement du sprite du joueur en fonction de la direction  
+-Ajout de quatres types de mouvement différents pour les ennemies  
+-Ajout de la génération procédurale des étages  
+
+### Semaine 7  
+-Ajout de la création des salles et des ennemies grâce à des fichier txt  
+-Ajout de la mécanique de combat avec une épée associé au joueur  
+-Ajout des collisions entre le joueur et les ennemies  
+-Ajout de mur destructible avec l'épee  
+-Nettoyage du code  
+
 
 ## Tableau d'organisation
 https://trello.com/b/wG0z8xdt
