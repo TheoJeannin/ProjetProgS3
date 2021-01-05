@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     SDL_Event evenements;
     SDL_Renderer* screen;
     bool terminer = false;
-    int time = SDL_GetTicks();
+    int timer = SDL_GetTicks();
     int delta = 0;
     //Initialisation SDL
     if(SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -34,13 +34,13 @@ int main(int argc, char *argv[])
     }
     screen = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     //Initialisation Jeu
-    srand(5);
+    srand(time(NULL));
     const Uint8* numkeys = SDL_GetKeyboardState(NULL);
     Floor* Etage=createFloor(screen,1);
     Player* player = createPlayer(screen,70,window_width/2,44,70);
     //Boucle principale
     while(!terminer){
-        time = SDL_GetTicks();
+        timer = SDL_GetTicks();
         SDL_PollEvent( &evenements );
         if(numkeys[SDL_SCANCODE_W]){
             moveEntity(&(player->physic),Etage->cRoom->tiles,0,-player->speed);
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
         SDL_RenderPresent(screen);
         delta=(time-SDL_GetTicks());
         if(18>delta){
-            SDL_Delay(18-(time-SDL_GetTicks()));
+            SDL_Delay(18-(timer-SDL_GetTicks()));
         }
         else{
             SDL_Delay(18);
