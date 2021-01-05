@@ -1,28 +1,18 @@
 CC = gcc
-CFLAGS = -W -Wall -ansi -pedantic
-
-#Inclure SLD2 et SDL2_image
-IFLAGS = -I. -I/usr/include/SDL2/
-LIBS = -lSDL2 -lSDL2_image 
-
-#Nom de l'executable :
+CFLAGS = -ansi -std=c99 -g
+LIBS = -L./SDL2_ttf/.libs  -L./SDL2_image/.libs
+LDFLAGS = `sdl2-config --libs --cflags` -lSDL2_image -lm
+INCLUDES =  -I./SDL2_ttf  -I./SDL2_image
 EXEC = main
-
-#Modifier les sources :
-SRC = Base_SDL/src/extensionsdl.c Base_SDL/src/affichage.c Base_SDL/src/logique.c  Base_SDL/src/main.c
+SRC = src/extensionsdl.c src/affichage.c src/logique.c src/main.c
 OBJ = $(SRC:.c=.o)
 
-
 all: $(EXEC)
-
 main: $(OBJ)
-	@$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(IFLAGS) $(LIBS) -lm
-
+	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $^ $(LIBS) $(LDFLAGS)
 %.o: %.c
-	@$(CC) -o $@ $^ $(LDFLAGS) $(IFLAGS) $(LIBS)-lm
-
+	$(CC) $(CFLAGS) -o $@ -c $<
 clean:
-	@rm -rf *.o
-	
+	rm -rf *.o *~
 mrproper: clean
-	@rm -rf 
+	rm -rf $(EXEC)

@@ -13,6 +13,8 @@ int main(int argc, char *argv[])
     SDL_Event evenements;
     SDL_Renderer* screen;
     bool terminer = false;
+    int time = SDL_GetTicks();
+    int delta = 0;
     //Initialisation SDL
     if(SDL_Init(SDL_INIT_VIDEO) < 0)
     {
@@ -30,47 +32,40 @@ int main(int argc, char *argv[])
         SDL_Quit();
         return EXIT_FAILURE;
     }
-    screen = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC);
+    screen = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     //Initialisation Jeu
-    srand(time(NULL));
+    srand(5);
+    const Uint8* numkeys = SDL_GetKeyboardState(NULL);
     Floor* Etage=createFloor(screen,1);
     Player* player = createPlayer(screen,70,window_width/2,44,70);
     //Boucle principale
     while(!terminer){
+        time = SDL_GetTicks();
         SDL_PollEvent( &evenements );
-            switch(evenements.type)
-            {
-                case SDL_QUIT:
-                terminer = true;
-                break;
-                case SDL_KEYDOWN:
-                    switch(evenements.key.keysym.sym)
-                    {
-                        case SDLK_z:
-                            moveEntity(&(player->physic),Etage->cRoom->tiles,0,-player->speed);
-                            player->facing=4;
-                        break;
-                        case SDLK_q:
-                            moveEntity(&(player->physic),Etage->cRoom->tiles,-player->speed,0);
-                            player->facing=2;
-                        break;
-                        case SDLK_s:
-                            moveEntity(&(player->physic),Etage->cRoom->tiles,0,player->speed);
-                            player->facing=1;
-                        break;
-                        case SDLK_d:
-                            moveEntity(&(player->physic),Etage->cRoom->tiles,player->speed,0);
-                            player->facing=3;
-                        break;
-                        case SDLK_ESCAPE:
-                            terminer = true;
-                        case SDLK_SPACE:
-                        if(player->attacking==0){
-                            player->attacking=30;
-                        }
-                        break;
-                    }
+        if(numkeys[SDL_SCANCODE_W]){
+            moveEntity(&(player->physic),Etage->cRoom->tiles,0,-player->speed);
+            player->facing=4;
+        }
+        else if(numkeys[SDL_SCANCODE_A]){
+            moveEntity(&(player->physic),Etage->cRoom->tiles,-player->speed,0);
+            player->facing=2;
+        }
+        else if(numkeys[SDL_SCANCODE_S]){
+            moveEntity(&(player->physic),Etage->cRoom->tiles,0,player->speed);
+            player->facing=1;
+        }
+        else if(numkeys[SDL_SCANCODE_D]){
+            moveEntity(&(player->physic),Etage->cRoom->tiles,player->speed,0);
+            player->facing=3;
+        }
+        if(numkeys[SDL_SCANCODE_SPACE]){
+            if(player->attacking==0){
+                player->attacking=20;
             }
+        }
+        if(numkeys[SDL_SCANCODE_ESCAPE]){
+                            terminer = true;
+        }
         travelRoom(player,Etage);
         if(player->attacking!=0){
             attackPlayer(player,Etage->cRoom->ennemies,Etage->cRoom->tiles);
@@ -81,6 +76,13 @@ int main(int argc, char *argv[])
         printPlayer(screen,player);
         printEnnemies(screen,Etage->cRoom->ennemies,Etage->entity_sprites);
         SDL_RenderPresent(screen);
+        delta=(time-SDL_GetTicks());
+        if(18>delta){
+            SDL_Delay(18-(time-SDL_GetTicks()));
+        }
+        else{
+            SDL_Delay(18);
+        }
     }
     freeFloor(Etage);
     freePlayer(player);

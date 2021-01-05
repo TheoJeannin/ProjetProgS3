@@ -711,7 +711,7 @@ void ennemiesCollideWithPlayer(Ennemie_List* ennemies,Player* joueur){
         fEnnemie=cEnnemie;
         cEnnemie=cEnnemie->suivant;
         if(entityCollide(fEnnemie->e.physic,joueur->physic)){
-            if(fEnnemie->type==5){
+            if(fEnnemie->type==6){
                 joueur->speed+=1;
             }
             retireFromList(ennemies,fEnnemie);

@@ -10,7 +10,7 @@
 #define nbwTiles 12
 #define nbhTiles 8
 #define nbTilesText 9
-#define playerSpeed 10
+#define playerSpeed 5
 #define floorSize 10
 #define nbTreasureRoom 1
 #define nbCommonRoom 8
