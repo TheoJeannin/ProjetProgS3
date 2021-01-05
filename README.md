@@ -8,6 +8,11 @@ L'objectif du projet est de créer un **dungeon crawler 2D** avec une gestion de
 Nous aimerions implémenter de la **génération procédurale** pour la création des salles ainsi que leurs contenus.  
 Les salles contiendraient donc des ennemis, des obstacles et des objets que nous comptons gérer avec un **système de tiles**.  
 
+## Comment le lancer
+Il faut se placer dans le répertoire ../Base_SDL/ et entrer dans l'invité de commandes :
+make  
+./main
+
 ## Suivi
 ### Semaine 1 
 -Création README.md 
